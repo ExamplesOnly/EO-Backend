@@ -1,0 +1,22 @@
+{
+  "name": "ExamplesOnlyBackend",
+  "version": "1.0.0",
+  "description": "Backend for ExamplesOnly built on NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": "https://github.com/ExamplesOnly/EO-Backend.git",
+  "author": "Bishwajyoti Roy <bishwajyoti456@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^4.1.1",
+    "mariadb": "^2.4.2",
+    "morgan": "^1.10.0",
+    "sequelize": "^6.3.5"
+  }
+}
