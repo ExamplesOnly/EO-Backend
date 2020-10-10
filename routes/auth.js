@@ -1,11 +1,14 @@
 const express = require("express");
+const asyncHandler = require("express-async-handler");
+const validator = require("../controllers/validator");
+const auth = require("../controllers/auth");
+const helper = require("../controllers/helper");
 
 const moduleRouter = express.Router();
 
 const config = {
   name: "auth",
   parentRoute: "/auth",
-  middleware: [],
 };
 
 moduleRouter.get("/", (req, res) => {
@@ -14,9 +17,23 @@ moduleRouter.get("/", (req, res) => {
   });
 });
 
+moduleRouter.post(
+  "/login",
+  validator.login,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.passportLocal),
+  asyncHandler(auth.token)
+);
+
+moduleRouter.post(
+  "/signup",
+  auth.signupAccess,
+  validator.signup,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.signup)
+);
+
 module.exports = {
   moduleRouter,
   config,
 };
-
-// module.exports = router;

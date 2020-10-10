@@ -1,5 +1,5 @@
 {
-  "name": "ExamplesOnlyBackend",
+  "name": "ExamplesOnly",
   "version": "1.0.0",
   "description": "Backend for ExamplesOnly built on NodeJS",
   "main": "index.js",
@@ -11,14 +11,27 @@
   "author": "Bishwajyoti Roy <bishwajyoti456@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "aws-sdk": "^2.771.0",
+    "bcrypt": "^5.0.0",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "date-fns": "^2.16.1",
     "dotenv": "^8.2.0",
+    "envalid": "^6.0.2",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
+    "express-validator": "^6.6.1",
     "helmet": "^4.1.1",
+    "jsonwebtoken": "^8.5.1",
     "mariadb": "^2.4.2",
     "morgan": "^1.10.0",
     "mysql2": "^2.2.5",
-    "sequelize": "^6.3.5"
+    "nanoid": "^3.1.12",
+    "nodemailer": "^6.4.13",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "sequelize": "^6.3.5",
+    "signale": "^1.4.0"
   }
 }

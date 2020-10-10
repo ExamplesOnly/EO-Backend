@@ -3,21 +3,39 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "Users",
     {
+      uuid: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      first_name: DataTypes.STRING,
-      middle_name: DataTypes.STRING,
-      last_name: DataTypes.STRING,
-      password: DataTypes.STRING,
-      phone_number: {
-        type: DataTypes.INTEGER.UNSIGNED,
+      firstName: DataTypes.STRING,
+      middleName: DataTypes.STRING,
+      lastName: DataTypes.STRING,
+      password: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
-      country_code: DataTypes.STRING,
-      profile_image: DataTypes.INTEGER,
-      cover_image: DataTypes.INTEGER,
+      phoneNumber: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: true,
+      },
+      countryCode: DataTypes.STRING,
+      profileImage: DataTypes.INTEGER,
+      coverImage: DataTypes.INTEGER,
+      verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      blocked: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      verification_token: DataTypes.STRING,
+      verification_expires: DataTypes.DATE,
     },
     {}
   );
