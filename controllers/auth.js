@@ -2,7 +2,7 @@ const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const customAlphabet = require("nanoid").customAlphabet;
 const mail = require("./mail");
-const Op = require("Sequelize").Op;
+const Op = require("sequelize").Op;
 const utils = require("../utils");
 const nanoid = customAlphabet(
   "1234567890abcdefghijklmnopqrstwxyz",

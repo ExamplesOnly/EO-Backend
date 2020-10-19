@@ -27,11 +27,10 @@ validator.signup = [
         email: req.body.email,
       });
 
-      if (user) {
-        req.user = user;
-      }
+      if (!user) return Promise.reject();
+      if (!user.verified) return Promise.reject();
 
-      if (user?.verified) return Promise.reject();
+      req.user = user;
     })
     .withMessage("This email address is already in use."),
   body("password", "Password is not valid.")

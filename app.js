@@ -42,4 +42,12 @@ app.use(middlewares.errorHandler);
 
 app.use(helpers.error);
 
-module.exports = app;
+// module.exports = app;
+
+const port = process.env.PORT || 3000;
+
+var server = app.listen(port, () => {
+  /* eslint-disable no-console */
+  console.log(`Listening: http://localhost:${port}`);
+  /* eslint-enable no-console */
+});

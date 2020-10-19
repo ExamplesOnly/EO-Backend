@@ -10,7 +10,15 @@ const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+  sequelize = new Sequelize(
+    process.env.DB_DBNAME,
+    process.env.DB_USERNAME,
+    process.env.DB_PASSWORD,
+    {
+      host: process.env.DB_HOSTNAME,
+      dialect: "mysql",
+    }
+  );
 } else {
   sequelize = new Sequelize(
     config.database,
