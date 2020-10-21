@@ -5,8 +5,8 @@ const auth = require("../controllers/auth");
 const moduleRouter = express.Router();
 
 const config = {
-  name: "video",
-  parentRoute: "/video",
+  name: "public links",
+  parentRoute: "/",
 };
 
 moduleRouter.get("/", asyncHandler(auth.verify));

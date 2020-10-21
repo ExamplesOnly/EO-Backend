@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const customAlphabet = require("nanoid").customAlphabet;
 const mail = require("./mail");
 const Op = require("sequelize").Op;
-const utils = require("../utils");
+const { signToken, CustomError } = require("../utils");
 const nanoid = customAlphabet(
   "1234567890abcdefghijklmnopqrstwxyz",
   process.env.ACCOUNT_UUID_LENGTH ? process.env.ACCOUNT_UUID_LENGTH : 10
@@ -82,12 +82,12 @@ auth.signup = async (req, res) => {
 };
 
 auth.token = async (req, res) => {
-  const token = utils.signToken(req.user);
+  const token = signToken(req.user);
   return res.status(200).send({ status: "success", token });
 };
 
 auth.verify = async (req, res, next) => {
-  console.log("verify");
+  console.log("verify", req.params.verificationToken);
   if (!req.params.verificationToken) return next();
 
   const user = await Users.update(
@@ -102,14 +102,16 @@ auth.verify = async (req, res, next) => {
     }
   );
 
+  console.log(user);
+
   if (user && user[0]) {
     return res.status(201).send({
       status: "success",
-      token: utils.signToken(user[0]),
+      token: signToken(user[0]),
       message: "Your account is verified.",
     });
   }
-  return new CustomError("Verification token expired.");
+  throw new CustomError("Verification token expired.");
 };
 
 module.exports = auth;

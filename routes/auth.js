@@ -33,6 +33,8 @@ moduleRouter.post(
   asyncHandler(auth.signup)
 );
 
+moduleRouter.get("/verify/:verificationToken?", asyncHandler(auth.verify));
+
 module.exports = {
   moduleRouter,
   config,

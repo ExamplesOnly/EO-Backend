@@ -36,11 +36,11 @@ mail.verification = async (email) => {
   );
 
   const mail = await transporter.sendMail({
-    from: process.env.MAIL_FROM || process.env.MAIL_USER,
-    to: user.email,
+    from: process.env.MAIL_FROM_NO_REPLY || process.env.MAIL_USER,
+    to: email,
     subject: "Verify your account",
-    text: "Verify mail text.",
-    html: "Verify mail <b>HTML</b> format.",
+    text: `Verify your ExamplesOnly account by visiting this link: http://api.examplesonly.com/v1/auth/verify/${token}`,
+    html: `Verify your <b>ExamplesOnly</b> account by visiting this link: http://api.examplesonly.com/v1/auth/verify/${token}`,
   });
 
   if (!mail.accepted.length) {

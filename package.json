@@ -4,9 +4,9 @@
   "description": "Backend for ExamplesOnly built on NodeJS",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node app.js",
     "web": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon app.js"
   },
   "repository": "https://github.com/ExamplesOnly/EO-Backend.git",
   "author": "Bishwajyoti Roy <bishwajyoti456@gmail.com>",

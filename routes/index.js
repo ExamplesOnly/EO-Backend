@@ -28,6 +28,4 @@ router.get("/", (req, res) => {
   });
 });
 
-// router.use("/auth", require("./auth"));
-
 module.exports = router;
