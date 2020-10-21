@@ -51,10 +51,11 @@ auth.passportJwt = authenticate("jwt", "Unauthorized.");
 auth.passportLocal = authenticate("local", "Login credentials are wrong.");
 
 auth.signupAccess = async (req, res, next) => {
-  if (process.env.ALLOW_REGISTRATION) return next();
-  return res
-    .status(403)
-    .send({ status: "fail", message: "Registration is not allowed." });
+  return next();
+  // if (process.env.ALLOW_REGISTRATION) return next();
+  // return res
+  //   .status(403)
+  //   .send({ status: "fail", message: "Registration is not allowed." });
 };
 
 auth.signup = async (req, res) => {
