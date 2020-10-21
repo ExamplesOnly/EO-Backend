@@ -16,6 +16,10 @@ validator.login = [
 ];
 
 validator.signup = [
+  body("firstName", "First name is required.")
+    .exists({ checkNull: true })
+    .isLength({ min: 3, max: 64 })
+    .withMessage("First ame length must be between 3 and 64."),
   body("email", "Email is not valid.")
     .exists({ checkFalsy: true, checkNull: true })
     .trim()
@@ -27,8 +31,7 @@ validator.signup = [
         email: req.body.email,
       });
 
-      if (!user) return Promise.reject();
-      if (!user.verified) return Promise.reject();
+      if (user) return Promise.reject();
 
       req.user = user;
     })
@@ -37,10 +40,6 @@ validator.signup = [
     .exists({ checkFalsy: true, checkNull: true })
     .isLength({ min: 8, max: 64 })
     .withMessage("Password length must be between 8 and 64."),
-  body("firstName", "First name is required.")
-    .exists({ checkNull: true })
-    .isLength({ min: 3, max: 64 })
-    .withMessage("First ame length must be between 3 and 64."),
 ];
 
 module.exports = validator;
