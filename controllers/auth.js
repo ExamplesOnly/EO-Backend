@@ -76,9 +76,11 @@ auth.signup = async (req, res) => {
   });
 
   await mail.verification(user[0].email);
-  return res
-    .status(201)
-    .send({ status: "success", message: "Verification email has been sent." });
+  return res.status(201).send({
+    status: "success",
+    token: signToken(user[0]),
+    message: "Verification email has been sent.",
+  });
 };
 
 auth.token = async (req, res) => {
