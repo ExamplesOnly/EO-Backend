@@ -23,7 +23,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
       },
-      gender: DataTypes.STRING,
       countryCode: DataTypes.STRING,
       profileImage: DataTypes.INTEGER,
       coverImage: DataTypes.INTEGER,
