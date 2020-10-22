@@ -88,7 +88,11 @@ auth.signup = async (req, res) => {
 
 auth.token = async (req, res) => {
   const token = signToken(req.user);
-  return res.status(200).send({ status: "success", token });
+  return res.status(200).send({
+    status: "success",
+    token,
+    name: req.user.firstName + " " + req.user.lastName,
+  });
 };
 
 auth.verify = async (req, res, next) => {

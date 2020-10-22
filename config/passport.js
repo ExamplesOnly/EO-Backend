@@ -35,7 +35,7 @@ const localOptions = {
 passport.use(
   new LocalStratergy(localOptions, async (email, password, done) => {
     try {
-      const user = await Users.findOne({ email });
+      const user = await Users.findOne({ where: { email } });
       if (!user) {
         return done(null, false);
       }
