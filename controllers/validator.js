@@ -31,7 +31,7 @@ validator.signup = [
         where: { email: req.body.email },
       });
 
-      if (!user) return Promise.reject();
+      if (user) return Promise.reject();
 
       req.user = user;
     })
