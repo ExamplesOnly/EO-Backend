@@ -28,10 +28,10 @@ validator.signup = [
     .withMessage("Email length must be max 255.")
     .custom(async (value, { req }) => {
       const user = await Users.findOne({
-        email: req.body.email,
+        where: { email: req.body.email },
       });
 
-      if (user) return Promise.reject();
+      if (!user) return Promise.reject();
 
       req.user = user;
     })

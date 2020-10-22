@@ -8,16 +8,19 @@ const Users = require("../models").Users;
 // const env = require("../env");
 
 const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromHeader("authorization"),
+  // jwtFromRequest: ExtractJwt.fromHeader("authorization"),
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
 };
 
 passport.use(
   new JwtStrategy(jwtOptions, async (payload, done) => {
     try {
-      user.find();
-      // const user = await query.user.find({ email: payload.sub });
-      // if (!user) return done(null, false);
+      const user = await Users.findOne({
+        email: payload.sub,
+      });
+
+      if (!user) return done(null, false);
       return done(null, user);
     } catch (err) {
       return done(err);

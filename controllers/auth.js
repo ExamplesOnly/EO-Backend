@@ -18,13 +18,15 @@ const authenticate = (type, error) =>
     if (req.user) return next();
 
     passport.authenticate(type, (err, user) => {
+      console.log("authenticate", err);
+
       if (err) return next(err);
 
-      if (!user && isStrict) {
+      if (!user) {
         throw new CustomError(error, 401);
       }
 
-      if (user && !user.verified) {
+      if (!user.verified) {
         throw new CustomError(
           "Your email address is not verified. " +
             "Click on signup to get the verification link again.",
@@ -104,8 +106,6 @@ auth.verify = async (req, res, next) => {
       },
     }
   );
-
-  console.log(user);
 
   if (user && user[0]) {
     return res.status(201).send({
