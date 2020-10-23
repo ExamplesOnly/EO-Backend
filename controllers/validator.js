@@ -31,9 +31,11 @@ validator.signup = [
         where: { email: req.body.email },
       });
 
-      if (user) return Promise.reject();
+      if (user) {
+        req.user = user;
+      }
 
-      req.user = user;
+      if (user && user.verified) return Promise.reject();
     })
     .withMessage("This email address is already in use."),
   body("password", "Password is not valid.")

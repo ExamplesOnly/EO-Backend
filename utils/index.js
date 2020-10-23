@@ -1,4 +1,7 @@
 const JWT = require("jsonwebtoken");
+const urlBuilder = require("build-url");
+const fetch = require("node-fetch");
+
 const {
   differenceInDays,
   differenceInHours,
@@ -23,10 +26,39 @@ const signToken = (user) =>
       iat: parseInt((new Date().getTime() / 1000).toFixed(0)),
       exp: parseInt((addDays(new Date(), 7).getTime() / 1000).toFixed(0)),
     },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
   );
+
+const makeDynamicLongLink = (url) => {
+  return urlBuilder(
+    `${process.env.DYNAMIC_LINK_SCHEME}://${process.env.DYNAMIC_LINK_DOMAIN}`,
+    {
+      queryParams: {
+        link: url,
+        apn: process.env.APP_ANDROID_PACKAGE,
+        afl: url,
+        ifl: url,
+      },
+    }
+  );
+};
+
+const generateDynamicLink = async (url) => {
+  return await fetch(
+    `https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=${process.env.FIREBASE_WEB_API_KEY}`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        longDynamicLink: makeDynamicLongLink(url),
+      }),
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+};
 
 module.exports = {
   CustomError,
   signToken,
+  generateDynamicLink,
 };

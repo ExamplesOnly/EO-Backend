@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const nodemailer = require("nodemailer");
+const { generateDynamicLink } = require("../utils");
 const { differenceInMinutes, addMinutes, subMinutes } = require("date-fns");
 
 const Users = require("../models").Users;
@@ -18,9 +19,7 @@ const mailConfig = {
 
 const transporter = nodemailer.createTransport(mailConfig);
 
-var mail = {};
-
-mail.verification = async (email) => {
+exports.verification = async (email) => {
   const token = uuidv4();
   const user = await Users.update(
     {
@@ -35,17 +34,19 @@ mail.verification = async (email) => {
     }
   );
 
+  const confirmLink = await generateDynamicLink(
+    `http://api.examplesonly.com/v1/auth/verify/${token}`
+  );
+
   const mail = await transporter.sendMail({
     from: process.env.MAIL_FROM_NO_REPLY || process.env.MAIL_USER,
     to: email,
     subject: "Verify your account",
-    text: `Verify your ExamplesOnly account by visiting this link: http://api.examplesonly.com/v1/auth/verify/${token}`,
-    html: `Verify your <b>ExamplesOnly</b> account by visiting this link: http://api.examplesonly.com/v1/auth/verify/${token}`,
+    text: `Verify your ExamplesOnly account by visiting this link: ${confirmLink}`,
+    html: `Verify your <b>ExamplesOnly</b> account by visiting this link: ${confirmLink}`,
   });
 
   if (!mail.accepted.length) {
     throw new CustomError("Couldn't send verification email. Try again later.");
   }
 };
-
-module.exports = mail;
