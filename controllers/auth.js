@@ -91,7 +91,6 @@ auth.token = async (req, res) => {
   return res.status(200).send({
     status: "success",
     token,
-    name: req.user.firstName + " " + req.user.lastName,
   });
 };
 

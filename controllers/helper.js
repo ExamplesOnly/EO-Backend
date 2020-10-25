@@ -12,9 +12,9 @@ exports.verify = (req, res, next) => {
 };
 
 exports.error = (error, req, res, next) => {
-  if (env.isDev) {
-    signale.fatal(error);
-  }
+  // if (env.isDev) {
+  //   signale.fatal(error);
+  // }
 
   if (error instanceof CustomError) {
     return res.status(error.statusCode || 500).json({ error: error.message });

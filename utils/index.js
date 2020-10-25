@@ -26,8 +26,7 @@ const signToken = (user) =>
       iat: parseInt((new Date().getTime() / 1000).toFixed(0)),
       exp: parseInt((addDays(new Date(), 7).getTime() / 1000).toFixed(0)),
     },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    process.env.JWT_SECRET
   );
 
 const makeDynamicLongLink = (url) => {

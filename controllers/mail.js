@@ -23,7 +23,7 @@ exports.verification = async (email) => {
   const token = uuidv4();
   const user = await Users.update(
     {
-      verified: true,
+      verified: false,
       verification_token: token,
       verification_expires: addMinutes(new Date(), 15).toISOString(),
     },
@@ -34,16 +34,17 @@ exports.verification = async (email) => {
     }
   );
 
-  const confirmLink = await generateDynamicLink(
+  const dynamicLink = await generateDynamicLink(
     `http://api.examplesonly.com/v1/auth/verify/${token}`
   );
+  const confirmLink = await dynamicLink.json();
 
   const mail = await transporter.sendMail({
     from: process.env.MAIL_FROM_NO_REPLY || process.env.MAIL_USER,
     to: email,
     subject: "Verify your account",
-    text: `Verify your ExamplesOnly account by visiting this link: ${confirmLink}`,
-    html: `Verify your <b>ExamplesOnly</b> account by visiting this link: ${confirmLink}`,
+    text: `Verify your ExamplesOnly account by visiting this link: ${confirmLink.shortLink}`,
+    html: `Verify your <b>ExamplesOnly</b> account by visiting this link: ${confirmLink.shortLink}`,
   });
 
   if (!mail.accepted.length) {

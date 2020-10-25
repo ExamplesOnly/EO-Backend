@@ -2,7 +2,20 @@ const Users = require("../models").Users;
 
 exports.me = async (req, res) => {
   const user = await Users.findOne({
-    where: { email: req.body.email ? req.body.email : "" },
+    attributes: [
+      "uuid",
+      "email",
+      "firstName",
+      "middleName",
+      "lastName",
+      "phoneNumber",
+      "countryCode",
+      "profileImage",
+      "coverImage",
+      "verified",
+      "blocked",
+    ],
+    where: { email: req.body.email },
   });
 
   if (user)
@@ -11,7 +24,5 @@ exports.me = async (req, res) => {
       user: user,
     });
 
-  return res.status(401).send({
-    status: "fail",
-  });
+  throw new CustomError("Account not found");
 };
