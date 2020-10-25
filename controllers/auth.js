@@ -118,7 +118,8 @@ auth.verify = async (req, res, next) => {
       message: "Your account is verified.",
     });
   }
-  throw new CustomError("Verification token expired.");
+
+  throw new CustomError("Verification token expired.", 401);
 };
 
 module.exports = auth;
