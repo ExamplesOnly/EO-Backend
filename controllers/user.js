@@ -15,14 +15,10 @@ exports.me = async (req, res) => {
       "verified",
       "blocked",
     ],
-    where: { email: req.body.email },
+    where: { email: req.user.dataValues.email },
   });
 
-  if (user)
-    return res.status(200).send({
-      status: "success",
-      user: user,
-    });
+  if (user) return res.status(200).send(user);
 
   throw new CustomError("Account not found");
 };
