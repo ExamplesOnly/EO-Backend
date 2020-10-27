@@ -40,7 +40,9 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
   User.associate = function (models) {
-    // associations can be defined here
+    User.hasMany(models.Videos, {
+      foreignKey: "userId",
+    });
   };
   return User;
 };
