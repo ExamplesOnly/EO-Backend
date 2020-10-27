@@ -18,8 +18,6 @@ const authenticate = (type, error) =>
     if (req.user) return next();
 
     passport.authenticate(type, (err, user) => {
-      console.log("authenticate", err);
-
       if (err) return next(err);
 
       if (!user) {
@@ -87,7 +85,7 @@ auth.signup = async (req, res) => {
 };
 
 auth.token = async (req, res) => {
-  const token = signToken(req.user);
+  const token = signToken(req.user.dataValues);
   return res.status(200).send({
     status: "success",
     token,
@@ -95,7 +93,6 @@ auth.token = async (req, res) => {
 };
 
 auth.verify = async (req, res, next) => {
-  console.log("verify", req.params.verificationToken);
   if (!req.params.verificationToken) return next();
 
   const user = await Users.update(

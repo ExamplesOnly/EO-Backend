@@ -10,11 +10,7 @@ const config = {
   parentRoute: "/user",
 };
 
-moduleRouter.get(
-  "/me",
-  //   asyncHandler(auth.passportJwt),
-  asyncHandler(user.me)
-);
+moduleRouter.get("/me", asyncHandler(auth.passportJwt), asyncHandler(user.me));
 
 module.exports = {
   moduleRouter,
