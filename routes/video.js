@@ -2,6 +2,7 @@ const express = require("express");
 const asyncHandler = require("express-async-handler");
 const validator = require("../controllers/validator");
 const video = require("../controllers/video");
+const auth = require("../controllers/auth");
 const helper = require("../controllers/helper");
 
 const moduleRouter = express.Router();
@@ -13,8 +14,10 @@ const config = {
 
 moduleRouter.post(
   "/upload",
-  validator.upload,
-  asyncHandler(helper.verify),
+  asyncHandler(auth.passportJwt),
+  // asyncHandler(video.setupVideo),
+  // validator.upload,
+  // asyncHandler(helper.verify),
   video.uploadS3.single("file"),
   asyncHandler(video.saveVideo)
 );

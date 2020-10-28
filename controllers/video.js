@@ -1,6 +1,14 @@
 const AWS = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
+var multiparty = require("multiparty");
+const Videos = require("../models").Videos;
+const Users = require("../models").Users;
+const customAlphabet = require("nanoid").customAlphabet;
+const nanoid = customAlphabet(
+  "1234567890abcdefghijklmnopqrstwxyz",
+  process.env.ACCOUNT_UUID_LENGTH ? process.env.ACCOUNT_UUID_LENGTH : 10
+);
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -11,6 +19,17 @@ const s3 = new AWS.S3({
   },
 });
 
+exports.setupVideo = async (req, res, next) => {
+  var form = new multiparty.Form();
+  form.parse(req, function (err, fields, files) {
+    req.body.title = fields.title ? fields.title[0] : undefined;
+    req.body.description = fields.description
+      ? fields.description[0]
+      : undefined;
+  });
+  next();
+};
+
 exports.uploadS3 = multer({
   storage: multerS3({
     s3: s3,
@@ -20,13 +39,41 @@ exports.uploadS3 = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      cb(null, Date.now().toString() + "-" + file.originalname);
+      cb(null, Date.now().toString());
     },
   }),
 });
 
 exports.saveVideo = async (req, res) => {
+  const video = await Videos.findOrCreate(
+    {
+      where: {
+        videoId: nanoid(),
+      },
+      defaults: {
+        videoId: nanoid(),
+        title: req.body.title,
+        description: req.body.description,
+        // userId: {
+        //   email: req.user.dataValues.email,
+        // },
+      },
+    }
+    // {
+    //   include: [
+    //     {
+    //       association: Videos.Users,
+    //       include: [Users.email],
+    //     },
+    //   ],
+    // }
+  );
+
   res.status(200).send({
+    status: "done",
+    body: req.body,
+    usr: req.user.dataValues.email,
+    video: video,
     file: req.file,
   });
 };
