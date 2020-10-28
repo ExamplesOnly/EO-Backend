@@ -20,5 +20,7 @@ exports.error = (error, req, res, next) => {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 
-  return res.status(500).json({ error: "An error occurred." });
+  return res.status(500).json({
+    error: process.env.ERROR_DEBUG ? "An error occurred." : error,
+  });
 };
