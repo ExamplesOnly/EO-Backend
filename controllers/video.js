@@ -24,3 +24,9 @@ exports.uploadS3 = multer({
     },
   }),
 });
+
+exports.saveVideo = async (req, res) => {
+  res.status(200).send({
+    file: req.file,
+  });
+};

@@ -2,7 +2,7 @@ let { body, param } = require("express-validator");
 const Users = require("../models").Users;
 const validator = {};
 
-validator.login = [
+exports.login = [
   body("password", "Password is not valid.")
     .exists({ checkFalsy: true, checkNull: true })
     .isLength({ min: 8, max: 64 })
@@ -15,11 +15,11 @@ validator.login = [
     .withMessage("Email length must be max 255."),
 ];
 
-validator.signup = [
+exports.signup = [
   body("firstName", "First name is required.")
     .exists({ checkNull: true })
     .isLength({ min: 3, max: 64 })
-    .withMessage("First ame length must be between 3 and 64."),
+    .withMessage("First name length must be between 3 and 64."),
   body("email", "Email is not valid.")
     .exists({ checkFalsy: true, checkNull: true })
     .trim()
@@ -44,4 +44,9 @@ validator.signup = [
     .withMessage("Password length must be between 8 and 64."),
 ];
 
-module.exports = validator;
+exports.upload = [
+  body("title", "Title is required.")
+    .exists({ checkNull: true })
+    .isLength({ min: 3, max: 64 })
+    .withMessage("Title length must be between 3 and 64."),
+];

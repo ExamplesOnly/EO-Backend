@@ -11,9 +11,13 @@ const config = {
   parentRoute: "/video",
 };
 
-moduleRouter.post("/upload", video.uploadS3.single("file"), (req, res) => {
-  res.send(req.file);
-});
+moduleRouter.post(
+  "/upload",
+  validator.upload,
+  asyncHandler(helper.verify),
+  video.uploadS3.single("file"),
+  asyncHandler(video.saveVideo)
+);
 
 module.exports = {
   moduleRouter,
