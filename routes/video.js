@@ -15,11 +15,17 @@ const config = {
 moduleRouter.post(
   "/upload",
   asyncHandler(auth.passportJwt),
-  // asyncHandler(video.setupVideo),
+  asyncHandler(video.setupVideo),
   // validator.upload,
   // asyncHandler(helper.verify),
   video.uploadS3.single("file"),
   asyncHandler(video.saveVideo)
+);
+
+moduleRouter.get(
+  "/list",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(video.getVideos)
 );
 
 module.exports = {

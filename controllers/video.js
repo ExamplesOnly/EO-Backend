@@ -62,6 +62,11 @@ exports.saveVideo = async (req, res) => {
       userId: user.id,
     },
   });
-
   res.status(200).send(video[0]);
+};
+
+exports.getVideos = async (req, res) => {
+  const video = await Videos.findAll();
+
+  res.send(video);
 };
