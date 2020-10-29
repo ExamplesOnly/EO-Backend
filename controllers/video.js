@@ -66,7 +66,32 @@ exports.saveVideo = async (req, res) => {
 };
 
 exports.getVideos = async (req, res) => {
-  const video = await Videos.findAll();
+  const video = await Videos.findAll({
+    attributes: [
+      "videoId",
+      "size",
+      "length",
+      "title",
+      "description",
+      "url",
+      "thumbUrl",
+      "createdAt",
+    ],
+    include: {
+      model: Users,
+      // as: "user",
+      attributes: [
+        "email",
+        "firstName",
+        "lastName",
+        "phoneNumber",
+        "countryCode",
+        "profileImage",
+        "coverImage",
+        "verified",
+      ],
+    },
+  });
 
   res.send(video);
 };
