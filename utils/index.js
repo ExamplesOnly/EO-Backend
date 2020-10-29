@@ -18,11 +18,11 @@ class CustomError extends Error {
   }
 }
 
-const signToken = (user) =>
+const signToken = (email) =>
   JWT.sign(
     {
       iss: "ApiAuth",
-      sub: user.email,
+      sub: email,
       iat: parseInt((new Date().getTime() / 1000).toFixed(0)),
       exp: parseInt((addDays(new Date(), 7).getTime() / 1000).toFixed(0)),
     },

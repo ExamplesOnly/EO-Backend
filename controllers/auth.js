@@ -79,13 +79,13 @@ auth.signup = async (req, res) => {
   await mail.verification(user[0].email);
   return res.status(201).send({
     status: "success",
-    token: signToken(user[0]),
+    token: signToken(user[0].email),
     message: "Verification email has been sent.",
   });
 };
 
 auth.token = async (req, res) => {
-  const token = signToken(req.user.dataValues);
+  const token = signToken(req.user.dataValues.email);
   return res.status(200).send({
     status: "success",
     token,
@@ -110,7 +110,7 @@ auth.verify = async (req, res, next) => {
   if (user && user[0]) {
     return res.status(201).send({
       status: "success",
-      token: signToken(user[0]),
+      token: signToken(user[0].email),
       message: "Your account is verified.",
     });
   }
