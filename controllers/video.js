@@ -91,6 +91,7 @@ exports.getVideos = async (req, res) => {
         "verified",
       ],
     },
+    order: [["createdAt", "DESC"]],
   });
 
   res.send(video);
