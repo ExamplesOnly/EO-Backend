@@ -15,6 +15,7 @@ const jwtOptions = {
 
 passport.use(
   new JwtStrategy(jwtOptions, async (payload, done) => {
+    if (!payload.sub) return done(null, false);
     try {
       const user = await Users.findOne({
         where: { email: payload.sub },

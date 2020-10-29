@@ -45,35 +45,23 @@ exports.uploadS3 = multer({
 });
 
 exports.saveVideo = async (req, res) => {
-  const video = await Videos.findOrCreate(
-    {
-      where: {
-        videoId: nanoid(),
-      },
-      defaults: {
-        videoId: nanoid(),
-        title: req.body.title,
-        description: req.body.description,
-        // userId: {
-        //   email: req.user.dataValues.email,
-        // },
-      },
-    }
-    // {
-    //   include: [
-    //     {
-    //       association: Videos.Users,
-    //       include: [Users.email],
-    //     },
-    //   ],
-    // }
-  );
-
-  res.status(200).send({
-    status: "done",
-    body: req.body,
-    usr: req.user.dataValues.email,
-    video: video,
-    file: req.file,
+  const user = await Users.findOne({
+    where: { email: req.user.dataValues.email },
   });
+
+  const video = await Videos.findOrCreate({
+    where: {
+      videoId: nanoid(),
+    },
+    defaults: {
+      videoId: nanoid(),
+      title: req.body.title,
+      description: req.body.description,
+      url: req.file.location,
+      size: req.file.size,
+      userId: user.id,
+    },
+  });
+
+  res.status(200).send(video[0]);
 };
