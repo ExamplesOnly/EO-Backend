@@ -4,11 +4,7 @@ const multerS3 = require("multer-s3");
 var multiparty = require("multiparty");
 const Videos = require("../models").Videos;
 const Users = require("../models").Users;
-const customAlphabet = require("nanoid").customAlphabet;
-const nanoid = customAlphabet(
-  "1234567890abcdefghijklmnopqrstwxyz",
-  process.env.ACCOUNT_UUID_LENGTH ? process.env.ACCOUNT_UUID_LENGTH : 10
-);
+const nanoid = require("nanoid");
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -27,6 +23,7 @@ exports.setupVideo = async (req, res, next) => {
       ? fields.description[0]
       : undefined;
   });
+  req.fileName = Date.now().toString();
   next();
 };
 
@@ -39,26 +36,31 @@ exports.uploadS3 = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      cb(null, Date.now().toString());
+      cb(
+        null,
+        file.fieldname == "thumbnail" ? `${req.fileName}_thumb` : req.fileName
+      );
     },
   }),
 });
 
 exports.saveVideo = async (req, res) => {
+  const videoId = nanoid();
   const user = await Users.findOne({
     where: { email: req.user.dataValues.email },
   });
 
   const video = await Videos.findOrCreate({
     where: {
-      videoId: nanoid(),
+      videoId: videoId,
     },
     defaults: {
-      videoId: nanoid(),
+      videoId: videoId,
       title: req.body.title,
       description: req.body.description,
-      url: req.file.location,
-      size: req.file.size,
+      size: req.files["file"].size,
+      url: req.files["file"].location,
+      thumbUrl: req.files["thumbnail"].location,
       userId: user.id,
     },
   });
@@ -84,10 +86,7 @@ exports.getVideos = async (req, res) => {
         "email",
         "firstName",
         "lastName",
-        "phoneNumber",
-        "countryCode",
         "profileImage",
-        "coverImage",
         "verified",
       ],
     },

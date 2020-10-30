@@ -18,7 +18,16 @@ moduleRouter.post(
   asyncHandler(video.setupVideo),
   // validator.upload,
   // asyncHandler(helper.verify),
-  video.uploadS3.single("file"),
+  video.uploadS3.fields([
+    {
+      name: "file",
+      maxCount: 1,
+    },
+    {
+      name: "thumbnail",
+      maxCount: 1,
+    },
+  ]),
   asyncHandler(video.saveVideo)
 );
 
