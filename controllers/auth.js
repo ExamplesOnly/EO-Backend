@@ -47,10 +47,10 @@ const authenticate = (type, error) =>
     })(req, res, next);
   };
 
-auth.passportJwt = authenticate("jwt", "Unauthorized.");
-auth.passportLocal = authenticate("local", "Login credentials are wrong.");
+exports.passportJwt = authenticate("jwt", "Unauthorized.");
+exports.passportLocal = authenticate("local", "Login credentials are wrong.");
 
-auth.signupAccess = async (req, res, next) => {
+exports.signupAccess = async (req, res, next) => {
   return next();
   // if (process.env.ALLOW_REGISTRATION) return next();
   // return res
@@ -58,7 +58,7 @@ auth.signupAccess = async (req, res, next) => {
   //   .send({ status: "fail", message: "Registration is not allowed." });
 };
 
-auth.signup = async (req, res) => {
+exports.signup = async (req, res) => {
   const salt = await bcrypt.genSalt(12);
   const password = await bcrypt.hash(req.body.password, salt);
 
@@ -76,15 +76,15 @@ auth.signup = async (req, res) => {
     },
   });
 
-  await mail.verification(user[0].email);
+  await mail.verification(req.body.email);
   return res.status(201).send({
     status: "success",
-    token: signToken(user[0].email),
+    token: signToken(req.body.email),
     message: "Verification email has been sent.",
   });
 };
 
-auth.token = async (req, res) => {
+exports.token = async (req, res) => {
   const token = signToken(req.user.dataValues.email);
   return res.status(200).send({
     status: "success",
@@ -92,7 +92,7 @@ auth.token = async (req, res) => {
   });
 };
 
-auth.verify = async (req, res, next) => {
+exports.verify = async (req, res, next) => {
   if (!req.params.verificationToken) return next();
 
   const user = await Users.update(
@@ -117,5 +117,3 @@ auth.verify = async (req, res, next) => {
 
   throw new CustomError("Verification token expired.", 401);
 };
-
-module.exports = auth;
