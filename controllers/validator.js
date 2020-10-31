@@ -50,3 +50,12 @@ exports.upload = [
     .isLength({ min: 3, max: 64 })
     .withMessage("Title length must be between 3 and 64."),
 ];
+
+exports.addCategory = [
+  body("title", "Title is required.")
+    .exists({ checkNull: true })
+    .isLength({ min: 3, max: 40 })
+    .withMessage("Title length must be between 3 and 40."),
+  // body("thumbUrl", "Thumbnail is required.").exists({ checkNull: true }),
+  body("slug", "Slug is required.").exists({ checkNull: true }),
+];
