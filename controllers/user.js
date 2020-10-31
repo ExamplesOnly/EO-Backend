@@ -1,4 +1,4 @@
-const Users = require("../models").Users;
+const Users = require("../models").User;
 
 exports.me = async (req, res) => {
   const user = await Users.findOne({

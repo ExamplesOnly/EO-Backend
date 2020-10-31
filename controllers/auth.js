@@ -9,7 +9,7 @@ const nanoid = customAlphabet(
   process.env.ACCOUNT_UUID_LENGTH ? process.env.ACCOUNT_UUID_LENGTH : 10
 );
 
-const Users = require("../models").Users;
+const Users = require("../models").User;
 
 const auth = {};
 

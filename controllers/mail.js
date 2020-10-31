@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 const { generateDynamicLink } = require("../utils");
 const { differenceInMinutes, addMinutes, subMinutes } = require("date-fns");
 
-const Users = require("../models").Users;
+const Users = require("../models").User;
 
 const mailConfig = {
   host: process.env.MAIL_HOST,

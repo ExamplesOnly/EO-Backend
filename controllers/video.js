@@ -2,8 +2,8 @@ const AWS = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 var multiparty = require("multiparty");
-const Videos = require("../models").Videos;
-const Users = require("../models").Users;
+const Videos = require("../models").Video;
+const Users = require("../models").User;
 const nanoid = require("nanoid");
 
 const s3 = new AWS.S3({
