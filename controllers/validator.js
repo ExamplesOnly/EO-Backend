@@ -1,5 +1,5 @@
 let { body, param } = require("express-validator");
-const Users = require("../models").Users;
+const Users = require("../models").User;
 const validator = {};
 
 exports.login = [
