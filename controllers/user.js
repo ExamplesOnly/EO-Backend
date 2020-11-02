@@ -15,7 +15,7 @@ exports.me = async (req, res) => {
       "verified",
       "blocked",
     ],
-    where: { email: req.user.dataValues.email },
+    where: { email: req.user.email },
   });
 
   if (user) return res.status(200).send(user);

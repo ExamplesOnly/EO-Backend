@@ -85,7 +85,7 @@ exports.signup = async (req, res) => {
 };
 
 exports.token = async (req, res) => {
-  const token = signToken(req.user.dataValues.email);
+  const token = signToken(req.user.email);
   return res.status(200).send({
     status: "success",
     token,

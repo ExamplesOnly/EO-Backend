@@ -47,7 +47,7 @@ exports.uploadS3 = multer({
 exports.saveVideo = async (req, res) => {
   const videoId = nanoid();
   const user = await Users.findOne({
-    where: { email: req.user.dataValues.email },
+    where: { email: req.user.email },
   });
 
   const video = await Videos.findOrCreate({

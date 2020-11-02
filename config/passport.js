@@ -19,6 +19,7 @@ passport.use(
     try {
       const user = await Users.findOne({
         where: { email: payload.sub },
+        raw: true,
       });
 
       if (!user) return done(null, false);
