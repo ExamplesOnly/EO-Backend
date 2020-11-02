@@ -4,7 +4,7 @@ const multerS3 = require("multer-s3");
 var multiparty = require("multiparty");
 const Videos = require("../models").Video;
 const Users = require("../models").User;
-const nanoid = require("nanoid");
+const { nanoid } = require("nanoid");
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -58,9 +58,9 @@ exports.saveVideo = async (req, res) => {
       videoId: videoId,
       title: req.body.title,
       description: req.body.description,
-      size: req.files["file"].size,
-      url: req.files["file"].location,
-      thumbUrl: req.files["thumbnail"].location,
+      size: req.files["file"][0].size,
+      url: req.files["file"][0].location,
+      thumbUrl: req.files["thumbnail"][0].location,
       userId: user.id,
     },
   });
