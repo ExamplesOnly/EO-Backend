@@ -1,4 +1,5 @@
 const Users = require("../models").User;
+const UserCategory = require("../models").UserCategory;
 
 exports.me = async (req, res) => {
   const user = await Users.findOne({
@@ -21,4 +22,24 @@ exports.me = async (req, res) => {
   if (user) return res.status(200).send(user);
 
   throw new CustomError("Account not found");
+};
+
+exports.addInterests = async (req, res) => {
+  let interesets = [];
+
+  for (let i = 0; i < req.categoriesCount; i++) {
+    interesets.push({
+      userId: req.user.id,
+      categoryId: req.categories[i],
+    });
+  }
+  try {
+    const categories = await UserCategory.bulkCreate(interesets, {
+      returning: true,
+      ignoreDuplicates: true,
+    });
+  } catch (error) {
+    throw new CustomError("Failed to add interests.", 400);
+  }
+  return res.status(200).json({ status: "success" });
 };

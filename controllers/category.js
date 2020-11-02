@@ -32,7 +32,7 @@ exports.update = async (req, res) => {
 
 exports.getCategories = async (req, res) => {
   const categories = await Category.findAll({
-    attributes: ["title", "slug", "thumbUrl"],
+    attributes: ["id", "title", "slug", "thumbUrl"],
   });
   res.status(200).send(categories);
 };

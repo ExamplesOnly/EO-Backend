@@ -59,3 +59,23 @@ exports.addCategory = [
   // body("thumbUrl", "Thumbnail is required.").exists({ checkNull: true }),
   body("slug", "Slug is required.").exists({ checkNull: true }),
 ];
+
+exports.addInterests = [
+  body("categories", "At least one category is required.")
+    .exists({ checkNull: true })
+    .custom(async (value, { req }) => {
+      try {
+        let categoryList = JSON.parse(req.body.categories);
+        let categoriesCount = categoryList.categories.length;
+        // if (req.categories.categories) {
+        // }
+        req.categories = categoryList.categories;
+        req.categoriesCount = categoriesCount;
+
+        console.log(categoryList, categoriesCount);
+      } catch (e) {
+        return Promise.reject();
+      }
+    })
+    .withMessage("Wrong request format."),
+];

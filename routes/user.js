@@ -2,6 +2,8 @@ const express = require("express");
 const asyncHandler = require("express-async-handler");
 const auth = require("../controllers/auth");
 const user = require("../controllers/user");
+const validator = require("../controllers/validator");
+const helper = require("../controllers/helper");
 
 const moduleRouter = express.Router();
 
@@ -11,6 +13,14 @@ const config = {
 };
 
 moduleRouter.get("/me", asyncHandler(auth.passportJwt), asyncHandler(user.me));
+
+moduleRouter.post(
+  "/addInterests",
+  asyncHandler(auth.passportJwt),
+  validator.addInterests,
+  asyncHandler(helper.verify),
+  asyncHandler(user.addInterests)
+);
 
 module.exports = {
   moduleRouter,
