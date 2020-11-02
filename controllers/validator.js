@@ -1,4 +1,4 @@
-let { body, param } = require("express-validator");
+let { body, param, check } = require("express-validator");
 const Users = require("../models").User;
 const validator = {};
 
@@ -49,6 +49,22 @@ exports.upload = [
     .exists({ checkNull: true })
     .isLength({ min: 3, max: 64 })
     .withMessage("Title length must be between 3 and 64."),
+  body("categories", "At least one category is required.")
+    .exists({ checkNull: true })
+    .custom(async (value, { req }) => {
+      try {
+        let categoryList = JSON.parse(req.body.categories);
+        let categoriesCount = categoryList.categories.length;
+        req.categories = categoryList.categories;
+        req.categoriesCount = categoriesCount;
+
+        console.log("CHECK", categoryList, categoriesCount);
+      } catch (e) {
+        console.log(e);
+        return Promise.reject();
+      }
+    })
+    .withMessage("Wrong request format."),
 ];
 
 exports.addCategory = [

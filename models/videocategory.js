@@ -1,13 +1,13 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
-  const UserCategory = sequelize.define(
-    "UserCategory",
+  const VideoCategory = sequelize.define(
+    "VideoCategory",
     {
-      userId: {
+      videoId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "User",
+          model: "Video",
           key: "id",
         },
       },
@@ -22,8 +22,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
-  UserCategory.associate = function (models) {
+  VideoCategory.associate = function (models) {
     // associations can be defined here
   };
-  return UserCategory;
+  return VideoCategory;
 };

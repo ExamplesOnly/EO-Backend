@@ -16,8 +16,6 @@ moduleRouter.post(
   "/upload",
   asyncHandler(auth.passportJwt),
   asyncHandler(video.setupVideo),
-  // validator.upload,
-  // asyncHandler(helper.verify),
   video.uploadS3.fields([
     {
       name: "file",
@@ -28,6 +26,8 @@ moduleRouter.post(
       maxCount: 1,
     },
   ]),
+  // validator.upload,
+  // asyncHandler(helper.verify),
   asyncHandler(video.saveVideo)
 );
 

@@ -4,7 +4,9 @@ const multerS3 = require("multer-s3");
 var multiparty = require("multiparty");
 const Videos = require("../models").Video;
 const Users = require("../models").User;
+const VideoCategory = require("../models").VideoCategory;
 const { nanoid } = require("nanoid");
+const { CustomError } = require("../utils");
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -16,15 +18,28 @@ const s3 = new AWS.S3({
 });
 
 exports.setupVideo = async (req, res, next) => {
-  var form = new multiparty.Form();
-  form.parse(req, function (err, fields, files) {
-    req.body.title = fields.title ? fields.title[0] : undefined;
-    req.body.description = fields.description
-      ? fields.description[0]
-      : undefined;
-  });
+  // var form = new multiparty.Form();
+  // form.parse(req, function (err, fields, files) {
+  //   console.log(fields);
+  // req.params.title = fields.title ? fields.title[0] : undefined;
+  // req.params.description = fields.description
+  //   ? fields.description[0]
+  //   : undefined;
+  // req.params.categories = fields.categories
+  //   ? fields.categories[0]
+  //   : undefined;
   req.fileName = Date.now().toString();
   next();
+  // });
+};
+
+exports.verifyUpload = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const message = errors.array()[0].msg;
+    throw new CustomError(message, 400);
+  }
+  return next();
 };
 
 exports.uploadS3 = multer({
@@ -38,7 +53,9 @@ exports.uploadS3 = multer({
     key: (req, file, cb) => {
       cb(
         null,
-        file.fieldname == "thumbnail" ? `${req.fileName}_thumb` : req.fileName
+        file.fieldname == "thumbnail"
+          ? `${req.fileName}_thumb` //_temp`
+          : `${req.fileName}` //_temp`
       );
     },
   }),
@@ -46,6 +63,9 @@ exports.uploadS3 = multer({
 
 exports.saveVideo = async (req, res) => {
   const videoId = nanoid();
+  let catt = [];
+  let categoryList, categoriesCount;
+
   const user = await Users.findOne({
     where: { email: req.user.email },
   });
@@ -64,6 +84,38 @@ exports.saveVideo = async (req, res) => {
       userId: user.id,
     },
   });
+  // console.log("CATT", catt);
+
+  if (req.body.categories) {
+    try {
+      categoryList = JSON.parse(req.body.categories);
+      categoriesCount = categoryList.categories.length;
+      req.categories = categoryList.categories;
+      req.categoriesCount = categoriesCount;
+
+      for (let i = 0; i < req.categoriesCount; i++) {
+        catt.push({
+          videoId: video[0].dataValues.id,
+          categoryId: req.categories[i],
+        });
+      }
+
+      console.log("CHECK", categoryList, categoriesCount);
+    } catch (e) {
+      console.log(e);
+      throw new CustomError("Wrong request format.", 400);
+    }
+
+    try {
+      const categories = await VideoCategory.bulkCreate(catt, {
+        returning: true,
+        ignoreDuplicates: true,
+      });
+    } catch (error) {
+      throw new CustomError("Failed to add categories.", 400);
+    }
+  }
+
   res.status(200).send(video[0]);
 };
 

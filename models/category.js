@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "categoryId",
       through: "UserCategory",
     });
+
+    Category.belongsToMany(models.Video, {
+      foreignKey: "categoryId",
+      through: "VideoCategory",
+    });
   };
   return Category;
 };
