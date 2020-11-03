@@ -1,4 +1,5 @@
 const Users = require("../models").User;
+const Video = require("../models").Video;
 const UserCategory = require("../models").UserCategory;
 
 exports.me = async (req, res) => {
@@ -42,4 +43,40 @@ exports.addInterests = async (req, res) => {
     throw new CustomError("Failed to add interests.", 400);
   }
   return res.status(200).json({ status: "success" });
+};
+
+exports.getVideos = async (req, res) => {
+  const user = await Users.findOne({
+    where: { email: req.user.email },
+  });
+
+  if (!user) throw new CustomError("Account not found");
+
+  const video = await Video.findAll({
+    where: { userId: user.id },
+    attributes: [
+      "videoId",
+      "size",
+      "length",
+      "title",
+      "description",
+      "url",
+      "thumbUrl",
+      "createdAt",
+    ],
+    include: {
+      model: Users,
+      // as: "user",
+      attributes: [
+        "email",
+        "firstName",
+        "lastName",
+        "profileImage",
+        "verified",
+      ],
+    },
+    order: [["createdAt", "DESC"]],
+  });
+
+  res.status(200).send(video);
 };

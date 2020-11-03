@@ -22,6 +22,12 @@ moduleRouter.post(
   asyncHandler(user.addInterests)
 );
 
+moduleRouter.get(
+  "/videos",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(user.getVideos)
+);
+
 module.exports = {
   moduleRouter,
   config,
