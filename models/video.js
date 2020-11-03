@@ -9,11 +9,15 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       size: DataTypes.INTEGER,
-      length: DataTypes.INTEGER,
+      duration: DataTypes.INTEGER,
+      height: DataTypes.INTEGER,
+      width: DataTypes.INTEGER,
       title: DataTypes.STRING,
       description: DataTypes.STRING,
       url: DataTypes.STRING,
       thumbUrl: DataTypes.STRING,
+      uploadedAtLat: DataTypes.STRING,
+      uploadedAtLong: DataTypes.STRING,
     },
     {}
   );
