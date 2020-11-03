@@ -1,5 +1,9 @@
 const User = require("../models").User;
 const Category = require("../models").Category;
+const Video = require("../models").Video;
+const VideoCategory = require("../models").VideoCategory;
+const db = require("../models");
+const { CustomError } = require("../utils");
 
 exports.add = async (req, res) => {
   const category = await Category.findOrCreate({
@@ -35,4 +39,24 @@ exports.getCategories = async (req, res) => {
     attributes: ["id", "title", "slug", "thumbUrl"],
   });
   res.status(200).send(categories);
+};
+
+exports.getCategoryVideos = async (req, res) => {
+  if (!req.params.categorySlug) return next();
+  const slug = req.params.categorySlug;
+
+  const category = await Category.findOne({
+    where: { slug },
+    raw: true,
+  });
+
+  if (!category) {
+    throw new CustomError("Category not found", 400);
+  }
+
+  const [results, metadata] = await db.sequelize.query(
+    `SELECT Videos.* from Videos INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId WHERE VideoCategories.categoryId = ${category.id}`
+  );
+
+  res.status(200).send(results);
 };

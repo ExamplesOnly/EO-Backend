@@ -27,11 +27,11 @@ moduleRouter.get(
   asyncHandler(category.getCategories)
 );
 
-// moduleRouter.get(
-//   "/videos",
-//   asyncHandler(auth.passportJwt),
-//   asyncHandler(category.getCategoryVideos)
-// );
+moduleRouter.get(
+  "/videos/:categorySlug?",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(category.getCategoryVideos)
+);
 
 module.exports = {
   moduleRouter,
