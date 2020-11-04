@@ -57,24 +57,15 @@ exports.getVideos = async (req, res) => {
     attributes: [
       "videoId",
       "size",
-      "length",
+      "duration",
+      "height",
+      "width",
       "title",
       "description",
       "url",
       "thumbUrl",
       "createdAt",
     ],
-    include: {
-      model: Users,
-      // as: "user",
-      attributes: [
-        "email",
-        "firstName",
-        "lastName",
-        "profileImage",
-        "verified",
-      ],
-    },
     order: [["createdAt", "DESC"]],
   });
 
