@@ -28,7 +28,7 @@ exports.setupVideo = async (req, res, next) => {
   // req.params.categories = fields.categories
   //   ? fields.categories[0]
   //   : undefined;
-  req.fileName = Date.now().toString();
+  req.videoId = nanoid();
   next();
   // });
 };
@@ -54,15 +54,14 @@ exports.uploadS3 = multer({
       cb(
         null,
         file.fieldname == "thumbnail"
-          ? `${req.fileName}_thumb` //_temp`
-          : `${req.fileName}` //_temp`
+          ? `${req.videoId}_thumb` //_temp`
+          : `${req.videoId}` //_temp`
       );
     },
   }),
 });
 
 exports.saveVideo = async (req, res) => {
-  const videoId = nanoid();
   let catt = [];
   let categoryList, categoriesCount;
 
@@ -72,10 +71,10 @@ exports.saveVideo = async (req, res) => {
 
   const video = await Videos.findOrCreate({
     where: {
-      videoId: videoId,
+      videoId: req.videoId,
     },
     defaults: {
-      videoId: videoId,
+      videoId: req.videoId,
       title: req.body.title,
       description: req.body.description,
       duration: req.body.duration,
