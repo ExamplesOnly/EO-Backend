@@ -46,8 +46,10 @@ exports.getDemands = async (req, res) => {
         attributes: ["title"],
       },
     ],
+    order: [["createdAt", "DESC"]],
   });
 
-  console.log(demands);
   res.status(200).send(demands);
 };
+
+exports.bookmarkDemand = async (req, res) => {};
