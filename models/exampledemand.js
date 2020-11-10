@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     ExampleDemand.hasMany(models.Video, {
-      foreignKey: "userId",
+      foreignKey: "demandId",
     });
   };
   return ExampleDemand;
