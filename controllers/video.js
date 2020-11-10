@@ -1,21 +1,13 @@
 const AWS = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
-var multiparty = require("multiparty");
 const Videos = require("../models").Video;
 const Users = require("../models").User;
 const VideoCategory = require("../models").VideoCategory;
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
 
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
-  params: {
-    Bucket: process.env.AWS_S3_BUCKET_NAME,
-  },
-});
+const { s3 } = require("../config/media");
 
 exports.setupVideo = async (req, res, next) => {
   // var form = new multiparty.Form();
@@ -65,6 +57,23 @@ exports.saveVideo = async (req, res) => {
   let catt = [];
   let categoryList, categoriesCount;
 
+  let defaults = {
+    videoId: req.videoId,
+    title: req.body.title,
+    description: req.body.description,
+    duration: req.body.duration,
+    height: req.body.height,
+    width: req.body.width,
+    size: req.files["file"][0].size,
+    url: req.files["file"][0].location,
+    thumbUrl: req.files["thumbnail"][0].location,
+    userId: user.id,
+  };
+
+  if (req.body.demandId) {
+    defaults.demandId = req.body.demandId;
+  }
+
   const user = await Users.findOne({
     where: { email: req.user.email },
   });
@@ -73,20 +82,8 @@ exports.saveVideo = async (req, res) => {
     where: {
       videoId: req.videoId,
     },
-    defaults: {
-      videoId: req.videoId,
-      title: req.body.title,
-      description: req.body.description,
-      duration: req.body.duration,
-      height: req.body.height,
-      width: req.body.width,
-      size: req.files["file"][0].size,
-      url: req.files["file"][0].location,
-      thumbUrl: req.files["thumbnail"][0].location,
-      userId: user.id,
-    },
+    defaults,
   });
-  // console.log("CATT", catt);
 
   if (req.body.categories) {
     try {
@@ -118,7 +115,7 @@ exports.saveVideo = async (req, res) => {
     }
   }
 
-  res.status(200).send(video[0]);
+  return res.status(200).send(video[0]);
 };
 
 exports.getVideos = async (req, res) => {

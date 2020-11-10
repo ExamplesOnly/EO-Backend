@@ -47,6 +47,9 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "userId",
       through: "UserCategory",
     });
+    User.hasMany(models.ExampleDemand, {
+      foreignKey: "userId",
+    });
   };
   return User;
 };

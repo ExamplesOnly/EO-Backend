@@ -22,6 +22,11 @@ moduleRouter.post(
   asyncHandler(user.addInterests)
 );
 
+moduleRouter.post(
+  "/update/profileImage",
+  asyncHandler(user.uploadProfileImage)
+);
+
 moduleRouter.get(
   "/videos",
   asyncHandler(auth.passportJwt),

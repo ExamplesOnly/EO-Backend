@@ -1,5 +1,6 @@
 let { body, param, check } = require("express-validator");
 const Users = require("../models").User;
+const Category = require("../models").Category;
 const validator = {};
 
 exports.login = [
@@ -94,4 +95,25 @@ exports.addInterests = [
       }
     })
     .withMessage("Wrong request format."),
+];
+
+exports.addDemand = [
+  body("title", "Title is required.")
+    .exists({ checkNull: true })
+    .isLength({ min: 3, max: 64 })
+    .withMessage("Title length must be between 3 and 64."),
+  body("description", "Description is required.")
+    .exists({ checkNull: true })
+    .isLength({ min: 10, max: 1000 })
+    .withMessage("Description length must be between 10 and 1000."),
+  body("categoryId", "Category is required.")
+    .exists({ checkNull: true })
+    .custom(async (value, { req }) => {
+      const category = await Category.findOne({
+        where: { id: req.body.categoryId },
+      });
+
+      if (!category) return Promise.reject();
+    })
+    .withMessage("Category not found."),
 ];

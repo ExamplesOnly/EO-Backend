@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "categoryId",
       through: "VideoCategory",
     });
+
+    Category.hasMany(models.ExampleDemand, {
+      foreignKey: "categoryId",
+    });
   };
   return Category;
 };
