@@ -21,6 +21,12 @@ moduleRouter.post(
   asyncHandler(demand.addDemand)
 );
 
+moduleRouter.get(
+  "/list",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(demand.getDemands)
+);
+
 module.exports = {
   moduleRouter,
   config,

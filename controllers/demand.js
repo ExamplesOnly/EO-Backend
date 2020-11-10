@@ -1,4 +1,6 @@
 const ExampleDemand = require("../models").ExampleDemand;
+const User = require("../models").User;
+const Category = require("../models").Category;
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
 
@@ -21,4 +23,31 @@ exports.addDemand = async (req, res) => {
   if (!demand) throw new CustomError();
 
   return res.status(200).send(demand[0]);
+};
+
+exports.getDemands = async (req, res) => {
+  const demands = await ExampleDemand.findAll({
+    attributes: ["title", "description"],
+    include: [
+      {
+        model: User,
+        // as: "user",
+        attributes: [
+          "email",
+          "firstName",
+          "lastName",
+          "profileImage",
+          "verified",
+        ],
+      },
+      {
+        model: Category,
+        // as: "category",
+        attributes: ["title"],
+      },
+    ],
+  });
+
+  console.log(demands);
+  res.status(200).send(demands);
 };
