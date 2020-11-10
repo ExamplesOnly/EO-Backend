@@ -67,7 +67,7 @@ exports.saveVideo = async (req, res) => {
     size: req.files["file"][0].size,
     url: req.files["file"][0].location,
     thumbUrl: req.files["thumbnail"][0].location,
-    userId: user.id,
+    userId: req.user.id,
   };
 
   if (req.body.demandId) {
