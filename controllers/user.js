@@ -1,15 +1,18 @@
-const Users = require("../models").User;
+const User = require("../models").User;
 const Video = require("../models").Video;
 const UserCategory = require("../models").UserCategory;
 
 exports.me = async (req, res) => {
-  const user = await Users.findOne({
+  const user = await User.findOne({
     attributes: [
       "uuid",
       "email",
       "firstName",
       "middleName",
       "lastName",
+      "gender",
+      "dob",
+      "bio",
       "phoneNumber",
       "countryCode",
       "profileImage",
@@ -45,8 +48,26 @@ exports.addInterests = async (req, res) => {
   return res.status(200).json({ status: "success" });
 };
 
+exports.updateProfile = async (req, res) => {
+  const user = await User.update(
+    {
+      firstName: req.body.firstName,
+      middleName: req.body.middleName,
+      lastName: req.body.lastName,
+      bio: req.body.bio,
+    },
+    {
+      where: { email: req.user.email },
+    }
+  );
+
+  if (!user) throw new CustomError("User not found", 400);
+
+  res.status(200).send({});
+};
+
 exports.getVideos = async (req, res) => {
-  const user = await Users.findOne({
+  const user = await User.findOne({
     where: { email: req.user.email },
   });
 

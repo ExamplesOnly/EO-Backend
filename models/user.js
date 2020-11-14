@@ -19,6 +19,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      bio: DataTypes.STRING,
+      dob: DataTypes.DATEONLY,
+      gender: DataTypes.STRING,
       phoneNumber: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,

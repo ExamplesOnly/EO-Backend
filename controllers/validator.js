@@ -97,6 +97,13 @@ exports.addInterests = [
     .withMessage("Wrong request format."),
 ];
 
+exports.updateProfile = [
+  body("firstName", "First name is required.")
+    .exists({ checkNull: true })
+    .isLength({ min: 3, max: 64 })
+    .withMessage("First name length must be between 3 and 64."),
+];
+
 exports.addDemand = [
   body("title", "Title is required.")
     .exists({ checkNull: true })
