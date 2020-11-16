@@ -1,6 +1,7 @@
 const AWS = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
+const { nanoid } = require("nanoid");
 
 let s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -11,9 +12,7 @@ let s3 = new AWS.S3({
   },
 });
 
-exports.s3 = s3;
-
-exports.storages3 = multerS3({
+let storages3 = multerS3({
   s3: s3,
   acl: process.env.AWS_S3_ACL,
   bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -21,13 +20,17 @@ exports.storages3 = multerS3({
     cb(null, { fieldName: file.fieldname });
   },
   key: (req, file, cb) => {
-    cb(
-      null,
-      file.fieldname == "thumbnail"
-        ? `${req.videoId}_thumb` //_temp`
-        : `${req.videoId}` //_temp`
-    );
+    cb(null, nanoid());
   },
 });
 
-exports.uploadS3 = async (req, res) => {};
+let uploads3 = multer({
+  storage: storages3,
+});
+
+// exports.uploadS3 = async (req, res) => {};
+module.exports = {
+  s3,
+  storages3,
+  uploads3,
+};

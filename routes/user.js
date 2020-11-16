@@ -4,6 +4,7 @@ const auth = require("../controllers/auth");
 const user = require("../controllers/user");
 const validator = require("../controllers/validator");
 const helper = require("../controllers/helper");
+const { uploads3 } = require("../config/media");
 
 const moduleRouter = express.Router();
 
@@ -24,6 +25,8 @@ moduleRouter.post(
 
 moduleRouter.post(
   "/update/profileImage",
+  asyncHandler(auth.passportJwt),
+  uploads3.single("file"),
   asyncHandler(user.uploadProfileImage)
 );
 

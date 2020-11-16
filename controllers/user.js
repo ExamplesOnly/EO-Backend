@@ -48,6 +48,21 @@ exports.addInterests = async (req, res) => {
   return res.status(200).json({ status: "success" });
 };
 
+exports.uploadProfileImage = async (req, res) => {
+  const user = await User.update(
+    {
+      profileImage: req.file.location,
+    },
+    {
+      where: { email: req.user.email },
+    }
+  );
+
+  if (!user) throw new CustomError("Some error occured", 400);
+
+  res.status(200).send({ url: req.file.location });
+};
+
 exports.updateProfile = async (req, res) => {
   const user = await User.update(
     {
@@ -61,7 +76,7 @@ exports.updateProfile = async (req, res) => {
     }
   );
 
-  if (!user) throw new CustomError("User not found", 400);
+  if (!user) throw new CustomError("Some error occured", 400);
 
   res.status(200).send({});
 };

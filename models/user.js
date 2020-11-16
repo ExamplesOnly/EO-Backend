@@ -27,8 +27,8 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       countryCode: DataTypes.STRING,
-      profileImage: DataTypes.INTEGER,
-      coverImage: DataTypes.INTEGER,
+      profileImage: DataTypes.STRING,
+      coverImage: DataTypes.STRING,
       verified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
