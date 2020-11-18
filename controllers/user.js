@@ -1,6 +1,7 @@
 const User = require("../models").User;
 const Video = require("../models").Video;
 const UserCategory = require("../models").UserCategory;
+const { s3 } = require("../config/media");
 
 exports.me = async (req, res) => {
   const user = await User.findOne({
@@ -49,6 +50,16 @@ exports.addInterests = async (req, res) => {
 };
 
 exports.uploadProfileImage = async (req, res) => {
+  const userData = await User.findOne({
+    where: { email: req.user.email },
+  });
+
+  if (userData && userData.profileImage) {
+    let fileSplit = userData.profileImage.split("/");
+    let fileName = fileSplit[fileSplit.length - 1];
+    await deleteFileS3(fileName);
+  }
+
   const user = await User.update(
     {
       profileImage: req.file.location,
@@ -107,3 +118,12 @@ exports.getVideos = async (req, res) => {
 
   res.status(200).send(video);
 };
+
+async function deleteFileS3(file) {
+  return s3
+    .deleteObject({
+      Key: file,
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+    })
+    .promise();
+}
