@@ -2,6 +2,7 @@ const ExampleDemand = require("../models").ExampleDemand;
 const User = require("../models").User;
 const Category = require("../models").Category;
 const Video = require("../models").Video;
+const { sequelize } = require("../models");
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
 
@@ -28,11 +29,16 @@ exports.addDemand = async (req, res) => {
 
 exports.getDemands = async (req, res) => {
   const demands = await ExampleDemand.findAll({
-    attributes: ["uuid", "title", "description"],
+    attributes: [
+      "uuid",
+      "title",
+      "description",
+      [sequelize.fn("COUNT", sequelize.col("Videos.id")), "VideoCount"],
+    ],
+    group: ["uuid"],
     include: [
       {
         model: User,
-        // as: "user",
         attributes: [
           "email",
           "firstName",
@@ -43,8 +49,22 @@ exports.getDemands = async (req, res) => {
       },
       {
         model: Category,
-        // as: "category",
         attributes: ["title"],
+      },
+      {
+        model: Video,
+        attributes: [
+          "videoId",
+          "size",
+          "duration",
+          "height",
+          "width",
+          "title",
+          "description",
+          "url",
+          "thumbUrl",
+          "createdAt",
+        ],
       },
     ],
     order: [["createdAt", "DESC"]],
