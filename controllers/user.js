@@ -1,6 +1,10 @@
 const User = require("../models").User;
 const Video = require("../models").Video;
 const UserCategory = require("../models").UserCategory;
+const Category = require("../models").Category;
+const ExampleBookmark = require("../models").ExampleBookmark;
+const ExampleDemand = require("../models").ExampleDemand;
+const { sequelize } = require("../models");
 const { s3 } = require("../config/media");
 
 exports.me = async (req, res) => {
@@ -117,6 +121,90 @@ exports.getVideos = async (req, res) => {
   });
 
   res.status(200).send(video);
+};
+
+exports.getUserDemands = async (req, res) => {
+  const demands = await ExampleDemand.findAll({
+    where: {
+      userId: req.user.id,
+    },
+    attributes: [
+      "uuid",
+      "title",
+      "description",
+      [sequelize.fn("COUNT", sequelize.col("Videos.id")), "videoCount"],
+      // [sequelize.fn("COUNT", sequelize.findAll({})), "isBookmarked"],
+    ],
+    group: ["uuid"],
+    include: [
+      {
+        model: User,
+        attributes: [
+          "email",
+          "firstName",
+          "lastName",
+          "profileImage",
+          "verified",
+        ],
+      },
+      {
+        model: Category,
+        attributes: ["title"],
+      },
+      {
+        model: Video,
+        attributes: [
+          "videoId",
+          "size",
+          "duration",
+          "height",
+          "width",
+          "title",
+          "description",
+          "url",
+          "thumbUrl",
+          "createdAt",
+        ],
+      },
+    ],
+    order: [["createdAt", "DESC"]],
+  });
+
+  res.status(200).send(demands);
+};
+
+exports.getDemandsBookmarks = async (req, res) => {
+  const bookmars = await User.findOne({
+    where: { id: req.user.id },
+    include: [
+      {
+        model: ExampleDemand,
+        attributes: [
+          "uuid",
+          "title",
+          "description",
+          [sequelize.fn("COUNT", sequelize.col("Videos.id")), "VideoCount"],
+        ],
+      },
+      {
+        model: Video,
+        attributes: [
+          "videoId",
+          "size",
+          "duration",
+          "height",
+          "width",
+          "title",
+          "description",
+          "url",
+          "thumbUrl",
+          "createdAt",
+        ],
+      },
+    ],
+  });
+
+  res.status(200).send(bookmars.ExampleDemands);
 };
 
 async function deleteFileS3(file) {

@@ -1,6 +1,7 @@
 let { body, param, check } = require("express-validator");
 const Users = require("../models").User;
 const Category = require("../models").Category;
+const ExampleDemand = require("../models").ExampleDemand;
 const validator = {};
 
 exports.login = [
@@ -123,4 +124,20 @@ exports.addDemand = [
       if (!category) return Promise.reject();
     })
     .withMessage("Category not found."),
+];
+
+exports.getDemandVideos = [body("demandId", "DemandId is required")];
+
+exports.isDemandValid = [
+  body("demandId", "DemandId is required")
+    .exists({ checkNull: true })
+    .custom(async (value, { req }) => {
+      const demand = await ExampleDemand.findOne({
+        where: { uuid: req.body.demandId },
+      });
+      if (!demand) return Promise.reject();
+
+      req.demand = demand;
+    })
+    .withMessage("Demand not found."),
 ];

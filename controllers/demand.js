@@ -1,4 +1,5 @@
 const ExampleDemand = require("../models").ExampleDemand;
+const ExampleBookmark = require("../models").ExampleBookmark;
 const User = require("../models").User;
 const Category = require("../models").Category;
 const Video = require("../models").Video;
@@ -22,7 +23,7 @@ exports.addDemand = async (req, res) => {
     },
   });
 
-  if (!demand) throw new CustomError();
+  if (!demand) throw new CustomError("");
 
   return res.status(200).send(demand[0]);
 };
@@ -33,7 +34,8 @@ exports.getDemands = async (req, res) => {
       "uuid",
       "title",
       "description",
-      [sequelize.fn("COUNT", sequelize.col("Videos.id")), "VideoCount"],
+      [sequelize.fn("COUNT", sequelize.col("Videos.id")), "videoCount"],
+      // [sequelize.fn("COUNT", sequelize.findAll({})), "isBookmarked"],
     ],
     group: ["uuid"],
     include: [
@@ -116,6 +118,10 @@ exports.getDemandVideos = async (req, res) => {
         // as: "category",
         attributes: ["title"],
       },
+      {
+        model: ExampleDemand,
+        attributes: ["uuid", "title"],
+      },
     ],
     order: [["createdAt", "DESC"]],
   });
@@ -123,4 +129,30 @@ exports.getDemandVideos = async (req, res) => {
   res.status(200).send(videos);
 };
 
-exports.bookmarkDemand = async (req, res) => {};
+exports.bookmarkDemand = async (req, res) => {
+  const bookmark = ExampleBookmark.findOrCreate({
+    where: {
+      userId: req.user.id,
+    },
+    defaults: {
+      demandId: req.demand.id,
+    },
+  });
+
+  if (!bookmark) throw new CustomError("Could not add bookmark", 400);
+
+  res.status(200).send(Z);
+};
+
+exports.removeDemandBookmark = async (req, res) => {
+  const bookmark = ExampleBookmark.destroy({
+    where: {
+      userId: req.user.id,
+      demandId: req.demand.id,
+    },
+  });
+
+  if (!bookmark) throw new CustomError("Could not add bookmark", 400);
+
+  res.status(200).send(Z);
+};

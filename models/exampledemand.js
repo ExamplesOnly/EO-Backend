@@ -23,6 +23,11 @@ module.exports = (sequelize, DataTypes) => {
     ExampleDemand.hasMany(models.Video, {
       foreignKey: "demandId",
     });
+
+    ExampleDemand.belongsToMany(models.User, {
+      foreignKey: "demandId",
+      through: "ExampleBookmark",
+    });
   };
   return ExampleDemand;
 };

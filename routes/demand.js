@@ -34,9 +34,19 @@ moduleRouter.get(
 );
 
 moduleRouter.post(
-  "/bookmark",
+  "/bookmark/add",
   asyncHandler(auth.passportJwt),
+  validator.isDemandValid,
+  asyncHandler(helper.verify),
   asyncHandler(demand.bookmarkDemand)
+);
+
+moduleRouter.post(
+  "/bookmark/remove",
+  asyncHandler(auth.passportJwt),
+  validator.isDemandValid,
+  asyncHandler(helper.verify),
+  asyncHandler(demand.removeDemandBookmark)
 );
 
 module.exports = {

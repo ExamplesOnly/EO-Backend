@@ -46,12 +46,19 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.Video, {
       foreignKey: "userId",
     });
+
     User.belongsToMany(models.Category, {
       foreignKey: "userId",
       through: "UserCategory",
     });
+
     User.hasMany(models.ExampleDemand, {
       foreignKey: "userId",
+    });
+
+    User.belongsToMany(models.ExampleDemand, {
+      foreignKey: "userId",
+      through: "ExampleBookmark",
     });
   };
   return User;
