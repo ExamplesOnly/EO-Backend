@@ -27,6 +27,18 @@ moduleRouter.get(
   asyncHandler(demand.getDemands)
 );
 
+moduleRouter.get(
+  "/:demandId/videos",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(demand.getDemandVideos)
+);
+
+moduleRouter.post(
+  "/bookmark",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(demand.bookmarkDemand)
+);
+
 module.exports = {
   moduleRouter,
   config,

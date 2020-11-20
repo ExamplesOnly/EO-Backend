@@ -3,6 +3,7 @@ const multer = require("multer");
 const multerS3 = require("multer-s3");
 const Videos = require("../models").Video;
 const Users = require("../models").User;
+const ExampleDemand = require("../models").ExampleDemand;
 const VideoCategory = require("../models").VideoCategory;
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
@@ -55,7 +56,7 @@ exports.uploadS3 = multer({
 
 exports.saveVideo = async (req, res) => {
   let catt = [];
-  let categoryList, categoriesCount;
+  let categoryList, categoriesCount, demand;
 
   let defaults = {
     videoId: req.videoId,
@@ -71,7 +72,16 @@ exports.saveVideo = async (req, res) => {
   };
 
   if (req.body.demandId) {
-    defaults.demandId = req.body.demandId;
+    demand = await ExampleDemand.findOne({
+      where: { uuid: req.body.demandId },
+      raw: true,
+    });
+
+    if (!demand) {
+      throw new CustomError("Demand not found", 400);
+    }
+
+    defaults.demandId = demand.id;
   }
 
   const user = await Users.findOne({
