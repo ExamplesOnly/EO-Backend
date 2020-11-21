@@ -31,6 +31,13 @@ moduleRouter.post(
 );
 
 moduleRouter.post(
+  "/update/coverImage",
+  asyncHandler(auth.passportJwt),
+  uploads3.single("file"),
+  asyncHandler(user.uploadCoverImage)
+);
+
+moduleRouter.post(
   "/update/profile",
   asyncHandler(auth.passportJwt),
   validator.updateProfile,

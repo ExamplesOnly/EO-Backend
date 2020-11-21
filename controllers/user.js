@@ -78,6 +78,31 @@ exports.uploadProfileImage = async (req, res) => {
   res.status(200).send({ url: req.file.location });
 };
 
+exports.uploadCoverImage = async (req, res) => {
+  const userData = await User.findOne({
+    where: { email: req.user.email },
+  });
+
+  if (userData && userData.coverImage) {
+    let fileSplit = userData.coverImage.split("/");
+    let fileName = fileSplit[fileSplit.length - 1];
+    await deleteFileS3(fileName);
+  }
+
+  const user = await User.update(
+    {
+      coverImage: req.file.location,
+    },
+    {
+      where: { email: req.user.email },
+    }
+  );
+
+  if (!user) throw new CustomError("Some error occured", 400);
+
+  res.status(200).send({ url: req.file.location });
+};
+
 exports.updateProfile = async (req, res) => {
   const user = await User.update(
     {
