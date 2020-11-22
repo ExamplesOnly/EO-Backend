@@ -36,21 +36,32 @@ exports.me = async (req, res) => {
 exports.addInterests = async (req, res) => {
   let interesets = [];
 
-  for (let i = 0; i < req.categoriesCount; i++) {
-    interesets.push({
-      userId: req.user.id,
-      categoryId: req.categories[i],
-    });
-  }
   try {
-    const categories = await UserCategory.bulkCreate(interesets, {
-      returning: true,
-      ignoreDuplicates: true,
-    });
+    categoryList = JSON.parse(req.body.categories);
+    categoriesCount = categoryList.categories.length;
+    req.categories = categoryList.categories;
+    req.categoriesCount = categoriesCount;
+
+    for (let i = 0; i < req.categoriesCount; i++) {
+      interesets.push({
+        userId: req.user.id,
+        categoryId: req.categories[i],
+      });
+    }
+    try {
+      const categories = await UserCategory.bulkCreate(interesets, {
+        returning: true,
+        ignoreDuplicates: true,
+      });
+    } catch (error) {
+      throw new CustomError("Failed to add interests.", 400);
+    }
   } catch (error) {
+    console.log(error);
     throw new CustomError("Failed to add interests.", 400);
   }
-  return res.status(200).json({ status: "success" });
+
+  return res.status(200).send({});
 };
 
 exports.uploadProfileImage = async (req, res) => {
