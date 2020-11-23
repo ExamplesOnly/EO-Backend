@@ -52,6 +52,12 @@ moduleRouter.get(
 );
 
 moduleRouter.get(
+  "/interests",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(user.getInterest)
+);
+
+moduleRouter.get(
   "/myDemands",
   asyncHandler(auth.passportJwt),
   asyncHandler(user.getUserDemands)

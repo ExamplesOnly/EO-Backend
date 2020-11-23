@@ -243,6 +243,20 @@ exports.getDemandsBookmarks = async (req, res) => {
   res.status(200).send(bookmars.ExampleDemands);
 };
 
+exports.getInterest = async (req, res) => {
+  const bookmarks = await User.findOne({
+    where: { id: req.user.id },
+    include: [
+      {
+        model: Category,
+        attributes: ["id", "title", "thumbUrl", "slug"],
+      },
+    ],
+  });
+
+  res.send(bookmarks.Categories);
+};
+
 async function deleteFileS3(file) {
   return s3
     .deleteObject({
