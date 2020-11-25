@@ -169,6 +169,6 @@ exports.deleteVideo = async (req, res) => {
   }
 
   video.destroy();
-  await deleteFileS3(req);
+  await deleteFileS3(video.videoId);
   return res.status(200).send({});
 };
