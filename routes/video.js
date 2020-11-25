@@ -37,6 +37,12 @@ moduleRouter.get(
   asyncHandler(video.getVideos)
 );
 
+moduleRouter.post(
+  "/delete",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(video.deleteVideo)
+);
+
 module.exports = {
   moduleRouter,
   config,

@@ -7,20 +7,11 @@ const ExampleDemand = require("../models").ExampleDemand;
 const VideoCategory = require("../models").VideoCategory;
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
+const { deleteFileS3 } = require("../config/media");
 
 const { s3 } = require("../config/media");
 
 exports.setupVideo = async (req, res, next) => {
-  // var form = new multiparty.Form();
-  // form.parse(req, function (err, fields, files) {
-  //   console.log(fields);
-  // req.params.title = fields.title ? fields.title[0] : undefined;
-  // req.params.description = fields.description
-  //   ? fields.description[0]
-  //   : undefined;
-  // req.params.categories = fields.categories
-  //   ? fields.categories[0]
-  //   : undefined;
   req.videoId = nanoid();
   next();
   // });
@@ -163,4 +154,21 @@ exports.getVideos = async (req, res) => {
   });
 
   res.send(video);
+};
+
+exports.deleteVideo = async (req, res) => {
+  const video = await Videos.findOne({
+    where: {
+      videoId: req.body.videoId,
+      userId: req.user.id,
+    },
+  });
+
+  if (!video) {
+    throw new CustomError("Video not found", 400);
+  }
+
+  video.destroy();
+  await deleteFileS3(req);
+  return res.status(200).send({});
 };

@@ -28,9 +28,19 @@ let uploads3 = multer({
   storage: storages3,
 });
 
+async function deleteFileS3(file) {
+  return s3
+    .deleteObject({
+      Key: file,
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+    })
+    .promise();
+}
+
 // exports.uploadS3 = async (req, res) => {};
 module.exports = {
   s3,
   storages3,
   uploads3,
+  deleteFileS3,
 };
