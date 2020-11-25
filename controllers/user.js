@@ -49,6 +49,12 @@ exports.addInterests = async (req, res) => {
       });
     }
     try {
+      const removeCategories = await UserCategory.destroy({
+        where: {
+          userId: req.user.id,
+        },
+      });
+
       const categories = await UserCategory.bulkCreate(interesets, {
         returning: true,
         ignoreDuplicates: true,
