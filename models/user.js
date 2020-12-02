@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       countryCode: DataTypes.STRING,
       profileImage: DataTypes.STRING,
       coverImage: DataTypes.STRING,
-      verified: {
+      emailVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },

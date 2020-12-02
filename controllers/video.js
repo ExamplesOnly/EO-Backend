@@ -137,13 +137,7 @@ exports.getVideos = async (req, res) => {
       {
         model: Users,
         // as: "user",
-        attributes: [
-          "email",
-          "firstName",
-          "lastName",
-          "profileImage",
-          "verified",
-        ],
+        attributes: ["email", "firstName", "lastName", "profileImage"],
       },
       {
         model: ExampleDemand,

@@ -22,7 +22,7 @@ exports.me = async (req, res) => {
       "countryCode",
       "profileImage",
       "coverImage",
-      "verified",
+      "emailVerified",
       "blocked",
     ],
     where: { email: req.user.email },
@@ -186,7 +186,7 @@ exports.getUserDemands = async (req, res) => {
           "firstName",
           "lastName",
           "profileImage",
-          "verified",
+          "emailVerified",
         ],
       },
       {

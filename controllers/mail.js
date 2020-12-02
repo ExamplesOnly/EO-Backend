@@ -23,7 +23,7 @@ exports.verification = async (email) => {
   const token = uuidv4();
   const user = await Users.update(
     {
-      verified: false,
+      emailVerified: false,
       verification_token: token,
       verification_expires: addMinutes(new Date(), 15).toISOString(),
     },

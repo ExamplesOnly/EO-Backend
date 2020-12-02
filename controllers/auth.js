@@ -24,7 +24,7 @@ const authenticate = (type, error) =>
         throw new CustomError(error, 401);
       }
 
-      if (!user.verified) {
+      if (!user.emailVerified) {
         throw new CustomError(
           "Your email address is not verified. " +
             "Click on signup to get the verification link again.",
@@ -84,6 +84,8 @@ exports.signup = async (req, res) => {
   });
 };
 
+exports.googleLogin = async (req, res) => {};
+
 exports.token = async (req, res) => {
   const token = signToken(req.user.email);
   return res.status(200).send({
@@ -96,7 +98,11 @@ exports.verify = async (req, res, next) => {
   if (!req.params.verificationToken) return next();
 
   const user = await Users.update(
-    { verified: true, verification_token: null, verification_expires: null },
+    {
+      emailVerified: true,
+      verification_token: null,
+      verification_expires: null,
+    },
     {
       where: {
         verification_token: req.params.verificationToken,
