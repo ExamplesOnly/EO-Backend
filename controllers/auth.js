@@ -1,13 +1,14 @@
 const passport = require("passport");
 const bcrypt = require("bcryptjs");
-const customAlphabet = require("nanoid").customAlphabet;
 const mail = require("./mail");
 const Op = require("sequelize").Op;
 const { signToken, CustomError } = require("../utils");
-const nanoid = customAlphabet(
-  "1234567890abcdefghijklmnopqrstwxyz",
-  process.env.ACCOUNT_UUID_LENGTH ? process.env.ACCOUNT_UUID_LENGTH : 10
-);
+// const customAlphabet = require("nanoid").customAlphabet;
+// const nanoid = customAlphabet(
+//   "1234567890abcdefghijklmnopqrstwxyz",
+//   process.env.ACCOUNT_UUID_LENGTH ? process.env.ACCOUNT_UUID_LENGTH : 10
+// );
+const { nanoid } = require("nanoid");
 
 const Users = require("../models").User;
 
@@ -67,7 +68,9 @@ exports.signup = async (req, res) => {
       email: req.body.email,
     },
     defaults: {
-      uuid: nanoid(),
+      uuid: nanoid(
+        process.env.ACCOUNT_UUID_LENGTH ? process.env.ACCOUNT_UUID_LENGTH : 10
+      ),
       email: req.body.email,
       firstName: req.body.firstName,
       middleName: req.body.middleName,
@@ -77,6 +80,7 @@ exports.signup = async (req, res) => {
   });
 
   await mail.verification(req.body.email);
+
   return res.status(201).send({
     status: "success",
     token: signToken(req.body.email),
