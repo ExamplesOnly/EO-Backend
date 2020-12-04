@@ -69,6 +69,12 @@ moduleRouter.get(
   asyncHandler(user.getDemandsBookmarks)
 );
 
+moduleRouter.get(
+  "/getProfile/:uuid",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(user.getUserProfile)
+);
+
 module.exports = {
   moduleRouter,
   config,

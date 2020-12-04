@@ -263,6 +263,53 @@ exports.getInterest = async (req, res) => {
   res.send(bookmarks.Categories);
 };
 
+exports.getUserProfile = async (req, res) => {
+  if (!req.params.uuid) throw new CustomError("User uuid is required", 400);
+
+  const user = await User.findOne({
+    where: { uuid: req.params.uuid },
+    attributes: [
+      "uuid",
+      "email",
+      "firstName",
+      "gender",
+      "dob",
+      "bio",
+      "phoneNumber",
+      "countryCode",
+      "profileImage",
+      "coverImage",
+      "emailVerified",
+      "blocked",
+    ],
+    include: [
+      {
+        model: Category,
+        attributes: ["id", "title", "thumbUrl", "slug"],
+      },
+      {
+        model: Video,
+        attributes: [
+          "videoId",
+          "size",
+          "duration",
+          "height",
+          "width",
+          "title",
+          "description",
+          "url",
+          "thumbUrl",
+          "createdAt",
+        ],
+      },
+    ],
+  });
+
+  if (!user) throw new CustomError("User account not found", 400);
+
+  res.status(200).send(user);
+};
+
 async function deleteFileS3(file) {
   return s3
     .deleteObject({
