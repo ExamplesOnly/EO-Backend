@@ -41,7 +41,7 @@ exports.getDemands = async (req, res) => {
     include: [
       {
         model: User,
-        attributes: ["email", "firstName", "lastName", "profileImage"],
+        attributes: ["uuid", "email", "firstName", "profileImage"],
       },
       {
         model: Category,
@@ -99,7 +99,7 @@ exports.getDemandVideos = async (req, res) => {
       {
         model: User,
         // as: "user",
-        attributes: ["email", "firstName", "lastName", "profileImage"],
+        attributes: ["uuid", "email", "firstName", "lastName", "profileImage"],
       },
       {
         model: Category,
