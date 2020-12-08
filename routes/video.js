@@ -43,6 +43,12 @@ moduleRouter.post(
   asyncHandler(video.deleteVideo)
 );
 
+moduleRouter.get(
+  "/:uuid",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(video.getVideo)
+);
+
 module.exports = {
   moduleRouter,
   config,

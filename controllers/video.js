@@ -166,3 +166,42 @@ exports.deleteVideo = async (req, res) => {
   await deleteFileS3(video.videoId);
   return res.status(200).send({});
 };
+
+exports.getVideo = async (req, res) => {
+  if (!req.params.uuid) throw new CustomError("Not Found", 404);
+
+  const video = await Videos.findOne({
+    where: {
+      videoId: req.params.uuid,
+    },
+    attributes: [
+      "videoId",
+      "size",
+      "duration",
+      "height",
+      "width",
+      "title",
+      "description",
+      "url",
+      "thumbUrl",
+      "createdAt",
+    ],
+    include: [
+      {
+        model: Users,
+        // as: "user",
+        attributes: ["uuid", "email", "firstName", "profileImage"],
+      },
+      {
+        model: ExampleDemand,
+        attributes: ["uuid", "title"],
+      },
+    ],
+  });
+
+  if (!video) {
+    throw new CustomError("Video not found", 400);
+  }
+
+  return res.status(200).send(video);
+};
