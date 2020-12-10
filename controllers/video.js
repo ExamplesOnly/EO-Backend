@@ -6,6 +6,7 @@ const Users = require("../models").User;
 const ExampleDemand = require("../models").ExampleDemand;
 const VideoCategory = require("../models").VideoCategory;
 const VideoBow = require("../models").VideoBow;
+const { sequelize } = require("../models");
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
 const { deleteFileS3 } = require("../config/media");
@@ -130,10 +131,12 @@ exports.getVideos = async (req, res) => {
       "width",
       "title",
       "description",
+      [sequelize.fn("COUNT", sequelize.col("User.id")), "bow"],
       "url",
       "thumbUrl",
       "createdAt",
     ],
+    group: ["id"],
     include: [
       {
         model: Users,
@@ -143,6 +146,10 @@ exports.getVideos = async (req, res) => {
       {
         model: ExampleDemand,
         attributes: ["uuid", "title"],
+      },
+      {
+        model: VideoBow,
+        attributes: [],
       },
     ],
     order: [["createdAt", "DESC"]],
@@ -183,6 +190,7 @@ exports.getVideo = async (req, res) => {
       "width",
       "title",
       "description",
+      [sequelize.fn("COUNT", sequelize.col("User.id")), "bow"],
       "url",
       "thumbUrl",
       "createdAt",
@@ -197,6 +205,10 @@ exports.getVideo = async (req, res) => {
         model: ExampleDemand,
         attributes: ["uuid", "title"],
       },
+      {
+        model: VideoBow,
+        attributes: [],
+      },
     ],
   });
 
@@ -206,6 +218,8 @@ exports.getVideo = async (req, res) => {
 
   return res.status(200).send(video);
 };
+
+exports.postView = async (req, res) => {};
 
 exports.postBow = async (req, res) => {
   const bow = await VideoBow.findOrCreate({
@@ -225,5 +239,5 @@ exports.postBow = async (req, res) => {
     });
   }
 
-  return res.send({ status: !bow[1] });
+  return res.send({ status: bow[1] });
 };

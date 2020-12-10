@@ -30,7 +30,11 @@ exports.postViewBow = [
         return Promise.reject();
       }
 
-      req.user = user;
+      req.bowUser = user;
     })
-    .withMessage("User not found."),
+    .withMessage("User not found.")
+    .custom(async (value, { req }) => {
+      if (req.bowUser.uuid != req.user.uuid) return Promise.reject();
+    })
+    .withMessage("You are not allowed to perform this action"),
 ];
