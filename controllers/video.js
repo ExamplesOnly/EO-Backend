@@ -132,8 +132,14 @@ exports.getVideos = async (req, res) => {
       "width",
       "title",
       "description",
-      [sequelize.literal("COUNT(DISTINCT(VideoBows.userId))"), "bow"],
-      [sequelize.literal("COUNT(DISTINCT(VideoViews.id))"), "view"],
+      // [sequelize.literal("COUNT(DISTINCT(VideoBows.userId))"), "bow"],
+      // [sequelize.literal("COUNT(DISTINCT(VideoViews.id))"), "view"],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id AND userId=${req.user.id})`
+        ),
+        "userBowed",
+      ],
       "url",
       "thumbUrl",
       "createdAt",
@@ -141,21 +147,20 @@ exports.getVideos = async (req, res) => {
     include: [
       {
         model: Users,
-        // as: "user",
         attributes: ["uuid", "email", "firstName", "profileImage"],
       },
       {
         model: ExampleDemand,
         attributes: ["uuid", "title"],
       },
-      {
-        model: VideoBow,
-        attributes: [],
-      },
-      {
-        model: VideoView,
-        attributes: [],
-      },
+      // {
+      //   model: VideoBow,
+      //   attributes: [],
+      // },
+      // {
+      //   model: VideoView,
+      //   attributes: [],
+      // },
     ],
     order: [["createdAt", "DESC"]],
     raw: true,
@@ -200,7 +205,12 @@ exports.getVideo = async (req, res) => {
       "description",
       [sequelize.literal("COUNT(DISTINCT(VideoBows.userId))"), "bow"],
       [sequelize.literal("COUNT(DISTINCT(VideoViews.id))"), "view"],
-      // [sequelize.fn("COUNT", sequelize.col("VideoViews.videoId")), "view"],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id AND userId=${req.user.id})`
+        ),
+        "userBowed",
+      ],
       "url",
       "thumbUrl",
       "createdAt",
@@ -229,21 +239,6 @@ exports.getVideo = async (req, res) => {
 
   if (!video) {
     throw new CustomError("Video not found", 400);
-  }
-
-  // check if current user bow'ed the video
-  const videoBow = await VideoBow.findOne({
-    where: {
-      userId: req.user.id,
-      videoId: video.id,
-    },
-    raw: true,
-  });
-
-  if (videoBow) {
-    video.isBowed = true;
-  } else {
-    video.isBowed = false;
   }
 
   // remove video id from video data object
