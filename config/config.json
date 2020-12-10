@@ -1,12 +1,9 @@
 {
   "development": {
-    "username": "root",
-    "password": null,
-    "database": "eo_dev",
-    "host": "192.168.64.3",
-    "dialect": "mysql"
+    "use_env_variable": true
   },
   "test": {
+    "use_env_variable": true,
     "username": "root",
     "password": null,
     "database": "eo_test",

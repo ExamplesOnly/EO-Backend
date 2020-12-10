@@ -1,9 +1,10 @@
 const express = require("express");
 const asyncHandler = require("express-async-handler");
 const validator = require("../controllers/validator");
+const videoValidator = require("../validators/video-validator");
+const helper = require("../controllers/helper");
 const video = require("../controllers/video");
 const auth = require("../controllers/auth");
-const helper = require("../controllers/helper");
 
 const moduleRouter = express.Router();
 
@@ -47,6 +48,15 @@ moduleRouter.get(
   "/:uuid",
   asyncHandler(auth.passportJwt),
   asyncHandler(video.getVideo)
+);
+
+
+moduleRouter.post(
+  "/postBow",
+  asyncHandler(auth.passportJwt),
+  videoValidator.postViewBow,
+  asyncHandler(helper.verify),
+  asyncHandler(video.postBow)
 );
 
 module.exports = {

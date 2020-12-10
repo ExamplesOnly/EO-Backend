@@ -5,6 +5,7 @@ const Videos = require("../models").Video;
 const Users = require("../models").User;
 const ExampleDemand = require("../models").ExampleDemand;
 const VideoCategory = require("../models").VideoCategory;
+const VideoBow = require("../models").VideoBow;
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
 const { deleteFileS3 } = require("../config/media");
@@ -204,4 +205,25 @@ exports.getVideo = async (req, res) => {
   }
 
   return res.status(200).send(video);
+};
+
+exports.postBow = async (req, res) => {
+  const bow = await VideoBow.findOrCreate({
+    where: {
+      videoId: req.video.id,
+      userId: req.user.id,
+    },
+  });
+
+  // delete if already bow'ed
+  if (!bow[1]) {
+    await VideoBow.destroy({
+      where: {
+        videoId: req.video.id,
+        userId: req.user.id,
+      },
+    });
+  }
+
+  return res.send({ status: !bow[1] });
 };

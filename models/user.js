@@ -60,6 +60,15 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "userId",
       through: "ExampleBookmark",
     });
+
+    User.belongsToMany(models.Video, {
+      foreignKey: "userId",
+      through: "VideoBow",
+    });
+
+    User.hasMany(models.VideoBow, {
+      foreignKey: "userId",
+    });
   };
   return User;
 };
