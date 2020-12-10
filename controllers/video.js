@@ -6,6 +6,7 @@ const Users = require("../models").User;
 const ExampleDemand = require("../models").ExampleDemand;
 const VideoCategory = require("../models").VideoCategory;
 const VideoBow = require("../models").VideoBow;
+const VideoView = require("../models").VideoView;
 const { sequelize } = require("../models");
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
@@ -131,12 +132,12 @@ exports.getVideos = async (req, res) => {
       "width",
       "title",
       "description",
-      [sequelize.fn("COUNT", sequelize.col("VideoBows.videoId")), "bow"],
+      [sequelize.literal("COUNT(DISTINCT(VideoBows.userId))"), "bow"],
+      [sequelize.literal("COUNT(DISTINCT(VideoViews.id))"), "view"],
       "url",
       "thumbUrl",
       "createdAt",
     ],
-    group: ["id"],
     include: [
       {
         model: Users,
@@ -151,8 +152,14 @@ exports.getVideos = async (req, res) => {
         model: VideoBow,
         attributes: [],
       },
+      {
+        model: VideoView,
+        attributes: [],
+      },
     ],
     order: [["createdAt", "DESC"]],
+    raw: true,
+    nest: true,
   });
 
   res.send(video);
@@ -191,7 +198,9 @@ exports.getVideo = async (req, res) => {
       "width",
       "title",
       "description",
-      [sequelize.fn("COUNT", sequelize.col("VideoBows.videoId")), "bow"],
+      [sequelize.literal("COUNT(DISTINCT(VideoBows.userId))"), "bow"],
+      [sequelize.literal("COUNT(DISTINCT(VideoViews.id))"), "view"],
+      // [sequelize.fn("COUNT", sequelize.col("VideoViews.videoId")), "view"],
       "url",
       "thumbUrl",
       "createdAt",
@@ -207,6 +216,10 @@ exports.getVideo = async (req, res) => {
       },
       {
         model: VideoBow,
+        attributes: [],
+      },
+      {
+        model: VideoView,
         attributes: [],
       },
     ],
@@ -239,7 +252,16 @@ exports.getVideo = async (req, res) => {
   return res.status(200).send(video);
 };
 
-exports.postView = async (req, res) => {};
+exports.postView = async (req, res) => {
+  const bow = await VideoBow.create({
+    where: {
+      videoId: req.video.id,
+      userId: req.user.id,
+    },
+  });
+
+  return res.status(200).send({});
+};
 
 exports.postBow = async (req, res) => {
   const bow = await VideoBow.findOrCreate({
@@ -259,5 +281,5 @@ exports.postBow = async (req, res) => {
     });
   }
 
-  return res.send({ status: bow[1] });
+  return res.status(200).send({ status: bow[1] });
 };

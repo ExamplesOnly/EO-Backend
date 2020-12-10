@@ -62,6 +62,18 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     User.belongsToMany(models.Video, {
+      through: {
+        model: models.VideoView,
+        foreignKey: "userId",
+        unique: false,
+      },
+    });
+
+    User.hasMany(models.VideoView, {
+      foreignKey: "userId",
+    });
+
+    User.belongsToMany(models.Video, {
       foreignKey: "userId",
       through: "VideoBow",
     });

@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   class VideoBow extends Model {
     static associate(models) {
       // define association here
+      // VideoBow.hasMany(models.User);
     }
   }
   VideoBow.init(
