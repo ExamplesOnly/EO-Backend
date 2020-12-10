@@ -131,7 +131,7 @@ exports.getVideos = async (req, res) => {
       "width",
       "title",
       "description",
-      [sequelize.fn("COUNT", sequelize.col("User.id")), "bow"],
+      [sequelize.fn("COUNT", sequelize.col("VideoBows.videoId")), "bow"],
       "url",
       "thumbUrl",
       "createdAt",
@@ -183,6 +183,7 @@ exports.getVideo = async (req, res) => {
       videoId: req.params.uuid,
     },
     attributes: [
+      "id",
       "videoId",
       "size",
       "duration",
@@ -190,7 +191,7 @@ exports.getVideo = async (req, res) => {
       "width",
       "title",
       "description",
-      [sequelize.fn("COUNT", sequelize.col("User.id")), "bow"],
+      [sequelize.fn("COUNT", sequelize.col("VideoBows.videoId")), "bow"],
       "url",
       "thumbUrl",
       "createdAt",
@@ -198,7 +199,6 @@ exports.getVideo = async (req, res) => {
     include: [
       {
         model: Users,
-        // as: "user",
         attributes: ["uuid", "email", "firstName", "profileImage"],
       },
       {
@@ -210,11 +210,31 @@ exports.getVideo = async (req, res) => {
         attributes: [],
       },
     ],
+    raw: true,
+    nest: true,
   });
 
   if (!video) {
     throw new CustomError("Video not found", 400);
   }
+
+  // check if current user bow'ed the video
+  const videoBow = await VideoBow.findOne({
+    where: {
+      userId: req.user.id,
+      videoId: video.id,
+    },
+    raw: true,
+  });
+
+  if (videoBow) {
+    video.isBowed = true;
+  } else {
+    video.isBowed = false;
+  }
+
+  // remove video id from video data object
+  delete video.id;
 
   return res.status(200).send(video);
 };
