@@ -5,6 +5,7 @@ const Category = require("../models").Category;
 const ExampleBookmark = require("../models").ExampleBookmark;
 const ExampleDemand = require("../models").ExampleDemand;
 const { sequelize } = require("../models");
+const { CustomError } = require("../utils");
 const { s3 } = require("../config/media");
 
 exports.me = async (req, res) => {
@@ -269,6 +270,7 @@ exports.getUserProfile = async (req, res) => {
   const user = await User.findOne({
     where: { uuid: req.params.uuid },
     attributes: [
+      "id",
       "uuid",
       "email",
       "firstName",
@@ -287,25 +289,20 @@ exports.getUserProfile = async (req, res) => {
         model: Category,
         attributes: ["id", "title", "thumbUrl", "slug"],
       },
-      {
-        model: Video,
-        attributes: [
-          "videoId",
-          "size",
-          "duration",
-          "height",
-          "width",
-          "title",
-          "description",
-          "url",
-          "thumbUrl",
-          "createdAt",
-        ],
-      },
     ],
+    raw: true,
+    nest: true,
   });
 
   if (!user) throw new CustomError("User account not found", 400);
+
+  const userVideos = await Video.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+  user.videos = userVideos;
+  delete user.id;
 
   res.status(200).send(user);
 };
