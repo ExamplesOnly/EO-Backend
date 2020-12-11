@@ -4,6 +4,7 @@ const Video = require("../models").Video;
 const VideoCategory = require("../models").VideoCategory;
 const db = require("../models");
 const { CustomError } = require("../utils");
+const { QueryTypes } = require("sequelize");
 
 exports.add = async (req, res) => {
   const category = await Category.findOrCreate({
@@ -55,8 +56,21 @@ exports.getCategoryVideos = async (req, res) => {
   }
 
   const [results, metadata] = await db.sequelize.query(
-    `SELECT Videos.* from Videos INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId WHERE VideoCategories.categoryId = ${category.id}`
+    `SELECT Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, Videos.url, Videos.thumbUrl, Videos.createdAt, User.uuid AS 'User.uuid', User.firstName AS 'User.firstName', User.email AS 'User.email', User.profileImage AS 'User.profileImage' from Videos INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId LEFT OUTER JOIN Users AS User ON Videos.userId = User.id WHERE VideoCategories.categoryId = ${category.id}`
   );
+
+  results.map((vid) => {
+    vid.User = {};
+    vid.User.uuid = vid["User.uuid"];
+    vid.User.firstName = vid["User.firstName"];
+    vid.User.email = vid["User.email"];
+    vid.User.profileImage = vid["User.profileImage"];
+    delete vid["User.uuid"];
+    delete vid["User.firstName"];
+    delete vid["User.email"];
+    delete vid["User.profileImage"];
+    return vid;
+  });
 
   res.status(200).send(results);
 };
