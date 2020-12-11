@@ -1,9 +1,10 @@
+const { sequelize, Sequelize } = require("../models");
 const ExampleDemand = require("../models").ExampleDemand;
 const ExampleBookmark = require("../models").ExampleBookmark;
 const User = require("../models").User;
 const Category = require("../models").Category;
 const Video = require("../models").Video;
-const { sequelize } = require("../models");
+const Op = Sequelize.Op;
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
 
@@ -30,6 +31,11 @@ exports.addDemand = async (req, res) => {
 
 exports.getDemands = async (req, res) => {
   const demands = await ExampleDemand.findAll({
+    where: {
+      userId: {
+        [Op.ne]: req.user.id,
+      },
+    },
     attributes: [
       "uuid",
       "title",
