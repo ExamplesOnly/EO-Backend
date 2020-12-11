@@ -296,6 +296,14 @@ exports.getUserProfile = async (req, res) => {
 
   if (!user) throw new CustomError("User account not found", 400);
 
+  console.log(user);
+
+  if (user.emailVerified == 0) {
+    user.emailVerified = false;
+  } else if (user.emailVerified == 1) {
+    user.emailVerified = true;
+  }
+
   const userVideos = await Video.findAll({
     where: {
       userId: user.id,
