@@ -132,8 +132,18 @@ exports.getVideos = async (req, res) => {
       "width",
       "title",
       "description",
-      // [sequelize.literal("COUNT(DISTINCT(VideoBows.userId))"), "bow"],
-      // [sequelize.literal("COUNT(DISTINCT(VideoViews.id))"), "view"],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id)`
+        ),
+        "bow",
+      ],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoViews WHERE videoId=Video.id)`
+        ),
+        "view",
+      ],
       [
         sequelize.literal(
           `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id AND userId=${req.user.id})`
@@ -153,18 +163,18 @@ exports.getVideos = async (req, res) => {
         model: ExampleDemand,
         attributes: ["uuid", "title"],
       },
-      // {
-      //   model: VideoBow,
-      //   attributes: [],
-      // },
-      // {
-      //   model: VideoView,
-      //   attributes: [],
-      // },
     ],
     order: [["createdAt", "DESC"]],
     raw: true,
     nest: true,
+  });
+
+  // remove unnecessery ExampleDemand data
+  video.map(function (vid) {
+    if (!vid.ExampleDemand || !vid.ExampleDemand.uuid) {
+      vid.ExampleDemand = null;
+    }
+    return vid;
   });
 
   res.send(video);
@@ -239,6 +249,11 @@ exports.getVideo = async (req, res) => {
 
   if (!video) {
     throw new CustomError("Video not found", 400);
+  }
+
+  // remove unnecessery ExampleDemand data
+  if (!video.ExampleDemand || !video.ExampleDemand.uuid) {
+    video.ExampleDemand = null;
   }
 
   // remove video id from video data object
