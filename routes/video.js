@@ -50,7 +50,7 @@ moduleRouter.get(
   asyncHandler(video.getVideo)
 );
 
-moduleRouter.get(
+moduleRouter.post(
   "/postView",
   asyncHandler(auth.passportJwt),
   videoValidator.postViewBow,

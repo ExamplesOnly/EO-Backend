@@ -169,7 +169,7 @@ exports.getVideos = async (req, res) => {
     nest: true,
   });
 
-  // remove unnecessery ExampleDemand data
+  // remove unnecessary ExampleDemand data
   video.map(function (vid) {
     if (!vid.ExampleDemand || !vid.ExampleDemand.uuid) {
       vid.ExampleDemand = null;
@@ -251,7 +251,7 @@ exports.getVideo = async (req, res) => {
     throw new CustomError("Video not found", 400);
   }
 
-  // remove unnecessery ExampleDemand data
+  // remove unnecessary ExampleDemand data
   if (!video.ExampleDemand || !video.ExampleDemand.uuid) {
     video.ExampleDemand = null;
   }
@@ -263,11 +263,9 @@ exports.getVideo = async (req, res) => {
 };
 
 exports.postView = async (req, res) => {
-  const bow = await VideoBow.create({
-    where: {
-      videoId: req.video.id,
-      userId: req.user.id,
-    },
+  await VideoView.create({
+    videoId: req.video.id,
+    userId: req.user.id,
   });
 
   return res.status(200).send({});
