@@ -290,29 +290,26 @@ exports.getUserProfile = async (req, res) => {
         attributes: ["id", "title", "thumbUrl", "slug"],
       },
     ],
-    raw: true,
-    nest: true,
   });
 
   if (!user) throw new CustomError("User account not found", 400);
 
-  console.log(user);
-
-  if (user.emailVerified == 0) {
-    user.emailVerified = false;
-  } else if (user.emailVerified == 1) {
-    user.emailVerified = true;
+  const userData = JSON.parse(JSON.stringify(user));
+  if (userData.emailVerified == 0) {
+    userData.emailVerified = false;
+  } else if (userData.emailVerified == 1) {
+    userData.emailVerified = true;
   }
 
   const userVideos = await Video.findAll({
     where: {
-      userId: user.id,
+      userId: userData.id,
     },
   });
-  user.Videos = userVideos;
-  delete user.id;
+  userData.Videos = userVideos;
+  delete userData.id;
 
-  res.status(200).send(user);
+  res.status(200).send(userData);
 };
 
 async function deleteFileS3(file) {
