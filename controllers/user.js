@@ -301,7 +301,7 @@ exports.getUserProfile = async (req, res) => {
       userId: user.id,
     },
   });
-  user.videos = userVideos;
+  user.Videos = userVideos;
   delete user.id;
 
   res.status(200).send(user);
