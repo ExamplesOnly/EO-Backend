@@ -135,7 +135,7 @@ exports.bookmarkDemand = async (req, res) => {
 
   if (!bookmark) throw new CustomError("Could not add bookmark", 400);
 
-  res.status(200).send(Z);
+  res.status(200).send(bookmark);
 };
 
 exports.removeDemandBookmark = async (req, res) => {
@@ -148,5 +148,5 @@ exports.removeDemandBookmark = async (req, res) => {
 
   if (!bookmark) throw new CustomError("Could not add bookmark", 400);
 
-  res.status(200).send(Z);
+  res.status(200).send(bookmark);
 };
