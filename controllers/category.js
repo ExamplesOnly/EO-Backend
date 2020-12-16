@@ -5,6 +5,14 @@ const VideoCategory = require("../models").VideoCategory;
 const db = require("../models");
 const { CustomError } = require("../utils");
 const { QueryTypes } = require("sequelize");
+const { signUrl } = require("../config/media");
+
+const thirtyMins = 30 * 60 * 1000;
+const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+const mediaCdnHost = process.env.AWS_CLOUFRONT_MEDIA_HOST
+  ? process.env.AWS_CLOUFRONT_MEDIA_HOST
+  : "mediacdn.examplesonly.com";
 
 exports.add = async (req, res) => {
   const category = await Category.findOrCreate({
@@ -67,15 +75,19 @@ exports.getCategoryVideos = async (req, res) => {
   }
 
   const [results, metadata] = await db.sequelize.query(
-    `SELECT Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, Videos.url, Videos.thumbUrl, Videos.createdAt, User.uuid AS 'User.uuid', User.firstName AS 'User.firstName', User.email AS 'User.email', User.profileImage AS 'User.profileImage' from Videos INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId LEFT OUTER JOIN Users AS User ON Videos.userId = User.id WHERE VideoCategories.categoryId = ${category.id}`
+    `SELECT Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id) AS bow, (SELECT COUNT(*) FROM VideoViews WHERE videoId=Videos.id) AS view, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id AND userId=1)  AS userBowed, Videos.fileKey, Videos.thumbKey, Videos.createdAt, User.uuid AS 'User.uuid', User.firstName AS 'User.firstName', User.email AS 'User.email', User.profileImage AS 'User.profileImage' from Videos INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId LEFT OUTER JOIN Users AS User ON Videos.userId = User.id WHERE VideoCategories.categoryId = ${category.id}`
   );
 
   results.map((vid) => {
+    vid.url = signUrl(mediaCdnHost, vid["fileKey"], thirtyMins);
+    vid.thumbUrl = signUrl(mediaCdnHost, vid["thumbKey"], thirtyMins);
     vid.User = {};
     vid.User.uuid = vid["User.uuid"];
     vid.User.firstName = vid["User.firstName"];
     vid.User.email = vid["User.email"];
     vid.User.profileImage = vid["User.profileImage"];
+    delete vid["fileKey"];
+    delete vid["thumbKey"];
     delete vid["User.uuid"];
     delete vid["User.firstName"];
     delete vid["User.email"];

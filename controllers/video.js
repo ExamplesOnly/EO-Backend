@@ -29,11 +29,13 @@ exports.verifyUpload = async (req, res, next) => {
   return next();
 };
 
-exports.uploadS3 = multer({
+exports.uploadVideo = multer({
   storage: multerS3({
     s3: s3,
-    acl: process.env.AWS_S3_ACL,
-    bucket: process.env.AWS_S3_BUCKET_NAME,
+    bucket:
+      process.env.NODE_ENV == "production"
+        ? process.env.AWS_S3_PRIVATE_BUCKET_NAME
+        : process.env.AWS_S3_DEV_BUCKET_NAME,
     metadata: (req, file, cb) => {
       cb(null, { fieldName: file.fieldname });
     },
@@ -41,8 +43,8 @@ exports.uploadS3 = multer({
       cb(
         null,
         file.fieldname == "thumbnail"
-          ? `${req.videoId}_thumb` //_temp`
-          : `${req.videoId}` //_temp`
+          ? `${req.videoId}_thumb`
+          : `${req.videoId}.mp4`
       );
     },
   }),
@@ -60,8 +62,8 @@ exports.saveVideo = async (req, res) => {
     height: req.body.height,
     width: req.body.width,
     size: req.files["file"][0].size,
-    url: req.files["file"][0].location,
-    thumbUrl: req.files["thumbnail"][0].location,
+    fileKey: req.files["file"][0].key,
+    thumbKey: req.files["thumbnail"][0].key,
     userId: req.user.id,
   };
 
@@ -102,10 +104,7 @@ exports.saveVideo = async (req, res) => {
           categoryId: req.categories[i],
         });
       }
-
-      console.log("CHECK", categoryList, categoriesCount);
     } catch (e) {
-      console.log(e);
       throw new CustomError("Wrong request format.", 400);
     }
 
@@ -123,7 +122,7 @@ exports.saveVideo = async (req, res) => {
 };
 
 exports.getVideos = async (req, res) => {
-  const video = await Videos.findAll({
+  let video = await Videos.findAll({
     attributes: [
       "videoId",
       "size",
@@ -152,6 +151,8 @@ exports.getVideos = async (req, res) => {
       ],
       "url",
       "thumbUrl",
+      "fileKey",
+      "thumbKey",
       "createdAt",
     ],
     include: [
@@ -165,15 +166,21 @@ exports.getVideos = async (req, res) => {
       },
     ],
     order: [["createdAt", "DESC"]],
-    raw: true,
-    nest: true,
   });
+
+  // parse video data to an json object
+  video = JSON.parse(JSON.stringify(video));
 
   // remove unnecessary ExampleDemand data
   video.map(function (vid) {
     if (!vid.ExampleDemand || !vid.ExampleDemand.uuid) {
       vid.ExampleDemand = null;
+    } else {
+      vid.title = vid.ExampleDemand.title;
     }
+
+    delete vid.fileKey;
+    delete vid.thumbKey;
     return vid;
   });
 
@@ -200,12 +207,11 @@ exports.deleteVideo = async (req, res) => {
 exports.getVideo = async (req, res) => {
   if (!req.params.uuid) throw new CustomError("Not Found", 404);
 
-  const video = await Videos.findOne({
+  let video = await Videos.findOne({
     where: {
       videoId: req.params.uuid,
     },
     attributes: [
-      "id",
       "videoId",
       "size",
       "duration",
@@ -223,6 +229,8 @@ exports.getVideo = async (req, res) => {
       ],
       "url",
       "thumbUrl",
+      "fileKey",
+      "thumbKey",
       "createdAt",
     ],
     include: [
@@ -243,21 +251,26 @@ exports.getVideo = async (req, res) => {
         attributes: [],
       },
     ],
-    raw: true,
-    nest: true,
   });
 
   if (!video) {
     throw new CustomError("Video not found", 400);
   }
 
+  // parse video data to an json object
+  video = JSON.parse(JSON.stringify(video));
+
   // remove unnecessary ExampleDemand data
   if (!video.ExampleDemand || !video.ExampleDemand.uuid) {
     video.ExampleDemand = null;
+  } else {
+    video.title = video.ExampleDemand.title;
   }
 
-  // remove video id from video data object
+  // remove unnecessery data from video object
   delete video.id;
+  delete video.fileKey;
+  delete video.thumbKey;
 
   return res.status(200).send(video);
 };

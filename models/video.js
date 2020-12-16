@@ -1,4 +1,14 @@
-"use strict";
+("use strict");
+
+const { signUrl } = require("../config/media");
+
+const thirtyMins = 30 * 60 * 1000;
+const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+const mediaCdnHost = process.env.AWS_CLOUFRONT_MEDIA_HOST
+  ? process.env.AWS_CLOUFRONT_MEDIA_HOST
+  : "mediacdn.examplesonly.com";
+
 module.exports = (sequelize, DataTypes) => {
   const Video = sequelize.define(
     "Video",
@@ -14,8 +24,20 @@ module.exports = (sequelize, DataTypes) => {
       width: DataTypes.INTEGER,
       title: DataTypes.STRING,
       description: DataTypes.STRING,
-      url: DataTypes.STRING,
-      thumbUrl: DataTypes.STRING,
+      url: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return signUrl(mediaCdnHost, this.fileKey, thirtyMins);
+        },
+      },
+      thumbUrl: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return signUrl(mediaCdnHost, this.thumbKey, sevenDays);
+        },
+      },
+      fileKey: DataTypes.STRING,
+      thumbKey: DataTypes.STRING,
       uploadedAtLat: DataTypes.STRING,
       uploadedAtLong: DataTypes.STRING,
     },
