@@ -37,7 +37,18 @@ exports.update = async (req, res) => {
 
 exports.getCategories = async (req, res) => {
   const categories = await Category.findAll({
-    attributes: ["id", "title", "slug", "thumbUrl"],
+    attributes: [
+      "id",
+      "title",
+      "slug",
+      "thumbUrl",
+      [
+        db.sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoCategories WHERE categoryId=Category.id)`
+        ),
+        "videoCount",
+      ],
+    ],
   });
   res.status(200).send(categories);
 };
