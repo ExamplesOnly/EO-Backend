@@ -48,7 +48,12 @@ async function deleteFileS3(file) {
 
 const signer = new AWS.CloudFront.Signer(
   process.env.AWS_CLOUFRONT_ACCESS_KEY,
-  process.env.AWS_CLOUFRONT_PRIVATE_KEY
+  process.env.NODE_ENV == "production"
+    ? new Buffer.from(
+        `${process.env.AWS_CLOUFRONT_PRIVATE_KEY_BASE64_1}${process.env.AWS_CLOUFRONT_PRIVATE_KEY_BASE64_2}`,
+        "base64"
+      ).toString()
+    : process.env.AWS_CLOUFRONT_PRIVATE_KEY
 );
 
 function signUrl(host, key, expire) {
