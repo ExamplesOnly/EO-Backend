@@ -158,7 +158,13 @@ exports.getVideos = async (req, res) => {
     include: [
       {
         model: Users,
-        attributes: ["uuid", "email", "firstName", "profileImage"],
+        attributes: [
+          "uuid",
+          "email",
+          "firstName",
+          "profileImage",
+          "profileImageKey",
+        ],
       },
       {
         model: ExampleDemand,
@@ -236,7 +242,13 @@ exports.getVideo = async (req, res) => {
     include: [
       {
         model: Users,
-        attributes: ["uuid", "email", "firstName", "profileImage"],
+        attributes: [
+          "uuid",
+          "email",
+          "firstName",
+          "profileImage",
+          "profileImageKey",
+        ],
       },
       {
         model: ExampleDemand,

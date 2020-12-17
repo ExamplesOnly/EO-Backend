@@ -9,7 +9,7 @@ const { CustomError } = require("../utils");
 const { s3 } = require("../config/media");
 
 exports.me = async (req, res) => {
-  const user = await User.findOne({
+  let user = await User.findOne({
     attributes: [
       "uuid",
       "email",
@@ -23,6 +23,8 @@ exports.me = async (req, res) => {
       "countryCode",
       "profileImage",
       "coverImage",
+      "profileImageKey",
+      "coverImageKey",
       "emailVerified",
       "blocked",
     ],
@@ -84,7 +86,7 @@ exports.uploadProfileImage = async (req, res) => {
 
   const user = await User.update(
     {
-      profileImage: req.file.location,
+      profileImageKey: req.file.key,
     },
     {
       where: { email: req.user.email },
@@ -93,7 +95,7 @@ exports.uploadProfileImage = async (req, res) => {
 
   if (!user) throw new CustomError("Some error occured", 400);
 
-  res.status(200).send({ url: req.file.location });
+  res.status(200).send({ url: user.profileImage });
 };
 
 exports.uploadCoverImage = async (req, res) => {
@@ -109,7 +111,7 @@ exports.uploadCoverImage = async (req, res) => {
 
   const user = await User.update(
     {
-      coverImage: req.file.location,
+      coverImageKey: req.file.key,
     },
     {
       where: { email: req.user.email },
@@ -118,7 +120,7 @@ exports.uploadCoverImage = async (req, res) => {
 
   if (!user) throw new CustomError("Some error occured", 400);
 
-  res.status(200).send({ url: req.file.location });
+  res.status(200).send({ url: user.coverImage });
 };
 
 exports.updateProfile = async (req, res) => {
@@ -176,6 +178,7 @@ exports.getUserDemands = async (req, res) => {
           "firstName",
           "lastName",
           "profileImage",
+          "profileImageKey",
           "emailVerified",
         ],
       },
@@ -270,6 +273,8 @@ exports.getUserProfile = async (req, res) => {
       "countryCode",
       "profileImage",
       "coverImage",
+      "profileImageKey",
+      "coverImageKey",
       "emailVerified",
       "blocked",
     ],
