@@ -1,4 +1,9 @@
 "use strict";
+
+const cdnHost = process.env.AWS_CLOUFRONT_PUBLIC_HOST
+  ? process.env.AWS_CLOUFRONT_PUBLIC_HOST
+  : "cdn.examplesonly.com";
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "User",
@@ -27,8 +32,21 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       countryCode: DataTypes.STRING,
-      profileImage: DataTypes.STRING,
-      coverImage: DataTypes.STRING,
+      profileImage: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return `https://${cdnHost}/${this.profileImageKey}`;
+        },
+      },
+      coverImage: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return `https://${cdnHost}/${this.coverImageKey}`;
+        },
+      },
+
+      profileImageKey: DataTypes.STRING,
+      coverImageKey: DataTypes.STRING,
       emailVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

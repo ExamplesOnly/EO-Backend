@@ -9,7 +9,7 @@ const { CustomError } = require("../utils");
 const { s3 } = require("../config/media");
 
 exports.me = async (req, res) => {
-  const user = await User.findOne({
+  let user = await User.findOne({
     attributes: [
       "uuid",
       "email",
@@ -23,6 +23,8 @@ exports.me = async (req, res) => {
       "countryCode",
       "profileImage",
       "coverImage",
+      "profileImageKey",
+      "coverImageKey",
       "emailVerified",
       "blocked",
     ],
@@ -84,7 +86,7 @@ exports.uploadProfileImage = async (req, res) => {
 
   const user = await User.update(
     {
-      profileImage: req.file.location,
+      profileImageKey: req.file.key,
     },
     {
       where: { email: req.user.email },
@@ -93,7 +95,7 @@ exports.uploadProfileImage = async (req, res) => {
 
   if (!user) throw new CustomError("Some error occured", 400);
 
-  res.status(200).send({ url: req.file.location });
+  res.status(200).send({ url: user.profileImage });
 };
 
 exports.uploadCoverImage = async (req, res) => {
@@ -109,7 +111,7 @@ exports.uploadCoverImage = async (req, res) => {
 
   const user = await User.update(
     {
-      coverImage: req.file.location,
+      coverImageKey: req.file.key,
     },
     {
       where: { email: req.user.email },
@@ -118,7 +120,7 @@ exports.uploadCoverImage = async (req, res) => {
 
   if (!user) throw new CustomError("Some error occured", 400);
 
-  res.status(200).send({ url: req.file.location });
+  res.status(200).send({ url: user.coverImage });
 };
 
 exports.updateProfile = async (req, res) => {
@@ -148,18 +150,7 @@ exports.getVideos = async (req, res) => {
 
   const video = await Video.findAll({
     where: { userId: user.id },
-    attributes: [
-      "videoId",
-      "size",
-      "duration",
-      "height",
-      "width",
-      "title",
-      "description",
-      "url",
-      "thumbUrl",
-      "createdAt",
-    ],
+    attributes: videoListAttributes,
     order: [["createdAt", "DESC"]],
   });
 
@@ -187,6 +178,7 @@ exports.getUserDemands = async (req, res) => {
           "firstName",
           "lastName",
           "profileImage",
+          "profileImageKey",
           "emailVerified",
         ],
       },
@@ -281,6 +273,8 @@ exports.getUserProfile = async (req, res) => {
       "countryCode",
       "profileImage",
       "coverImage",
+      "profileImageKey",
+      "coverImageKey",
       "emailVerified",
       "blocked",
     ],
@@ -301,11 +295,69 @@ exports.getUserProfile = async (req, res) => {
     userData.emailVerified = true;
   }
 
-  const userVideos = await Video.findAll({
+  let userVideos = await Video.findAll({
     where: {
       userId: userData.id,
     },
+    attributes: [
+      "videoId",
+      "size",
+      "duration",
+      "height",
+      "width",
+      "title",
+      "description",
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id)`
+        ),
+        "bow",
+      ],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoViews WHERE videoId=Video.id)`
+        ),
+        "view",
+      ],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id AND userId=${req.user.id})`
+        ),
+        "userBowed",
+      ],
+      "url",
+      "thumbUrl",
+      "fileKey",
+      "thumbKey",
+      "createdAt",
+    ],
+    include: [
+      {
+        model: ExampleDemand,
+        attributes: ["uuid", "title"],
+      },
+    ],
+    order: [["createdAt", "DESC"]],
+    limit: 12,
+    subQuery: false,
   });
+
+  // parse video data to an json object
+  userVideos = JSON.parse(JSON.stringify(userVideos));
+
+  // remove unnecessary ExampleDemand data
+  userVideos.map(function (vid) {
+    if (!vid.ExampleDemand || !vid.ExampleDemand.uuid) {
+      vid.ExampleDemand = null;
+    } else {
+      vid.title = vid.ExampleDemand.title;
+    }
+
+    delete vid.fileKey;
+    delete vid.thumbKey;
+    return vid;
+  });
+
   userData.Videos = userVideos;
   delete userData.id;
 

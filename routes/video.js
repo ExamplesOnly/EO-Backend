@@ -17,7 +17,7 @@ moduleRouter.post(
   "/upload",
   asyncHandler(auth.passportJwt),
   asyncHandler(video.setupVideo),
-  video.uploadS3.fields([
+  video.uploadVideo.fields([
     {
       name: "file",
       maxCount: 1,
