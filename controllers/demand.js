@@ -63,8 +63,28 @@ exports.getDemands = async (req, res) => {
           "width",
           "title",
           "description",
+          [
+            sequelize.literal(
+              `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id)`
+            ),
+            "bow",
+          ],
+          [
+            sequelize.literal(
+              `(SELECT COUNT(*) FROM VideoViews WHERE videoId=Videos.id)`
+            ),
+            "view",
+          ],
+          [
+            sequelize.literal(
+              `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id AND userId=${req.user.id})`
+            ),
+            "userBowed",
+          ],
           "url",
           "thumbUrl",
+          "fileKey",
+          "thumbKey",
           "createdAt",
         ],
       },
@@ -97,8 +117,28 @@ exports.getDemandVideos = async (req, res) => {
       "width",
       "title",
       "description",
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id)`
+        ),
+        "bow",
+      ],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoViews WHERE videoId=Video.id)`
+        ),
+        "view",
+      ],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id AND userId=${req.user.id})`
+        ),
+        "userBowed",
+      ],
       "url",
       "thumbUrl",
+      "fileKey",
+      "thumbKey",
       "createdAt",
     ],
     include: [
