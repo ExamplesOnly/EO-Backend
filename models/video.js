@@ -9,6 +9,8 @@ const mediaCdnHost = process.env.AWS_CLOUFRONT_MEDIA_HOST
   ? process.env.AWS_CLOUFRONT_MEDIA_HOST
   : "mediacdn.examplesonly.com";
 
+console.log(process.env.AWS_CLOUFRONT_MEDIA_HOST);
+
 module.exports = (sequelize, DataTypes) => {
   const Video = sequelize.define(
     "Video",
@@ -27,13 +29,17 @@ module.exports = (sequelize, DataTypes) => {
       url: {
         type: DataTypes.VIRTUAL,
         get() {
-          return signUrl(mediaCdnHost, this.fileKey, thirtyMins);
+          return process.env.NODE_ENV == "production"
+            ? signUrl(mediaCdnHost, this.fileKey, thirtyMins)
+            : `https://${mediaCdnHost}/${this.fileKey}`;
         },
       },
       thumbUrl: {
         type: DataTypes.VIRTUAL,
         get() {
-          return signUrl(mediaCdnHost, this.thumbKey, sevenDays);
+          return process.env.NODE_ENV == "production"
+            ? signUrl(mediaCdnHost, this.thumbKey, sevenDays)
+            : `https://${mediaCdnHost}/${this.fileKey}`;
         },
       },
       fileKey: DataTypes.STRING,
