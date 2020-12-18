@@ -35,13 +35,17 @@ module.exports = (sequelize, DataTypes) => {
       profileImage: {
         type: DataTypes.VIRTUAL,
         get() {
-          return `https://${cdnHost}/${this.profileImageKey}`;
+          return this.profileImageKey
+            ? `https://${cdnHost}/${this.profileImageKey}`
+            : null;
         },
       },
       coverImage: {
         type: DataTypes.VIRTUAL,
         get() {
-          return `https://${cdnHost}/${this.coverImageKey}`;
+          return this.coverImageKey
+            ? `https://${cdnHost}/${this.coverImageKey}`
+            : null;
         },
       },
 
