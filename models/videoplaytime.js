@@ -2,17 +2,14 @@
 const { nanoid } = require("nanoid");
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class VideoView extends Model {
+  class VideoPlayTime extends Model {
     static associate(models) {
-      VideoView.belongsTo(models.VideoReach, {
-        foreignKey: "reachId",
-      });
-      VideoView.hasOne(models.VideoPlayTime, {
+      VideoPlayTime.belongsTo(models.VideoView, {
         foreignKey: "viewId",
       });
     }
   }
-  VideoView.init(
+  VideoPlayTime.init(
     {
       uuid: {
         type: DataTypes.UUID,
@@ -22,15 +19,15 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         allowNull: false,
       },
-      reachId: {
+      viewId: {
         type: DataTypes.UUID,
         allowNull: true,
       },
     },
     {
       sequelize,
-      modelName: "VideoView",
+      modelName: "VideoPlayTime",
     }
   );
-  return VideoView;
+  return VideoPlayTime;
 };

@@ -1,17 +1,23 @@
 "use strict";
+const { nanoid } = require("nanoid");
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class VideoReach extends Model {
     static associate(models) {
-      // define association here
+      VideoReach.hasOne(models.VideoView, {
+        foreignKey: "reachId",
+      });
     }
   }
   VideoReach.init(
     {
-      id: {
-        type: DataTypes.INTEGER,
+      uuid: {
+        type: DataTypes.UUID,
+        defaultValue: function () {
+          return nanoid();
+        },
         primaryKey: true,
-        autoIncrement: true,
+        allowNull: false,
       },
     },
     {
