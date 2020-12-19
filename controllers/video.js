@@ -226,7 +226,7 @@ exports.getVideo = async (req, res) => {
       "title",
       "description",
       [sequelize.literal("COUNT(DISTINCT(VideoBows.userId))"), "bow"],
-      [sequelize.literal("COUNT(DISTINCT(VideoViews.id))"), "view"],
+      [sequelize.literal("COUNT(DISTINCT(VideoViews.uuid))"), "view"],
       [
         sequelize.literal(
           `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id AND userId=${req.user.id})`
