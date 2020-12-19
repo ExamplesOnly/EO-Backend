@@ -17,6 +17,9 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
       },
+      playTime: {
+        type: Sequelize.INTEGER,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
