@@ -107,6 +107,10 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.VideoReach, {
       foreignKey: "userId",
     });
+
+    User.hasMany(models.VideoPlayTime, {
+      foreignKey: "userId",
+    });
   };
   return User;
 };
