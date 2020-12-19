@@ -91,20 +91,24 @@ module.exports = (sequelize, DataTypes) => {
       },
     });
 
-    User.hasMany(models.VideoView, {
-      foreignKey: "userId",
-    });
+    // User.hasMany(models.VideoView, {
+    //   foreignKey: "userId",
+    // });
 
     User.belongsToMany(models.Video, {
       foreignKey: "userId",
       through: "VideoBow",
     });
 
-    User.hasMany(models.VideoBow, {
+    // User.hasMany(models.VideoBow, {
+    //   foreignKey: "userId",
+    // });
+
+    User.hasMany(models.VideoReach, {
       foreignKey: "userId",
     });
 
-    User.hasMany(models.VideoReach, {
+    User.hasMany(models.VideoPlayTime, {
       foreignKey: "userId",
     });
   };

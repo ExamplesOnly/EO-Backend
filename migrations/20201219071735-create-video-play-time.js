@@ -1,22 +1,20 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("VideoViews", {
+    await queryInterface.createTable("VideoPlayTimes", {
       uuid: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
       },
-      reachId: {
+      viewId: {
         allowNull: true,
         type: Sequelize.UUID,
       },
       videoId: {
-        allowNull: false,
         type: Sequelize.INTEGER,
       },
       userId: {
-        allowNull: false,
         type: Sequelize.INTEGER,
       },
       createdAt: {
@@ -30,6 +28,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("VideoViews");
+    await queryInterface.dropTable("VideoPlayTimes");
   },
 };
