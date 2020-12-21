@@ -7,6 +7,8 @@ const ExampleDemand = require("../models").ExampleDemand;
 const VideoCategory = require("../models").VideoCategory;
 const VideoBow = require("../models").VideoBow;
 const VideoView = require("../models").VideoView;
+const VideoReach = require("../models").VideoReach;
+const VideoPlayTime = require("../models").VideoPlayTime;
 const { sequelize } = require("../models");
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
@@ -287,13 +289,47 @@ exports.getVideo = async (req, res) => {
   return res.status(200).send(video);
 };
 
-exports.postView = async (req, res) => {
-  await VideoView.create({
+exports.postReach = async (req, res) => {
+  const reach = await VideoReach.create({
     videoId: req.video.id,
     userId: req.user.id,
   });
 
-  return res.status(200).send({});
+  return res.status(200).send(reach);
+};
+
+exports.postView = async (req, res) => {
+  let viewData = {
+    videoId: req.video.id,
+    userId: req.user.id,
+  };
+
+  if (req.body.reachId) {
+    viewData.reachId = req.body.reachId;
+  }
+
+  let view = await VideoView.create(viewData);
+  return res.status(200).send({
+    uuid: view.uuid,
+  });
+};
+
+exports.postPlayTime = async (req, res) => {
+  let playData = {
+    videoId: req.video.id,
+    userId: req.user.id,
+    playTime: req.body.playTime,
+  };
+
+  if (req.body.viewId) {
+    playData.viewId = req.body.viewId;
+  }
+
+  let play = await VideoPlayTime.create(playData);
+  return res.status(200).send({
+    uuid: play.uuid,
+    viewId: play.viewId,
+  });
 };
 
 exports.postBow = async (req, res) => {

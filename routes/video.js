@@ -51,11 +51,27 @@ moduleRouter.get(
 );
 
 moduleRouter.post(
+  "/postReach",
+  asyncHandler(auth.passportJwt),
+  videoValidator.postViewBow,
+  asyncHandler(helper.verify),
+  asyncHandler(video.postReach)
+);
+
+moduleRouter.post(
   "/postView",
   asyncHandler(auth.passportJwt),
   videoValidator.postViewBow,
   asyncHandler(helper.verify),
   asyncHandler(video.postView)
+);
+
+moduleRouter.post(
+  "/postPlayTime",
+  asyncHandler(auth.passportJwt),
+  videoValidator.postViewBow,
+  asyncHandler(helper.verify),
+  asyncHandler(video.postPlayTime)
 );
 
 moduleRouter.post(
