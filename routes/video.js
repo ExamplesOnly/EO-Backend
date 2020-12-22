@@ -69,7 +69,7 @@ moduleRouter.post(
 moduleRouter.post(
   "/postPlayTime",
   asyncHandler(auth.passportJwt),
-  videoValidator.postViewBow,
+  videoValidator.postPlayTime,
   asyncHandler(helper.verify),
   asyncHandler(video.postPlayTime)
 );

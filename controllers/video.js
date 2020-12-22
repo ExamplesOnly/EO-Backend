@@ -321,11 +321,23 @@ exports.postPlayTime = async (req, res) => {
     playTime: req.body.playTime,
   };
 
-  if (req.body.viewId) {
-    playData.viewId = req.body.viewId;
+  // if (req.body.viewId) {
+  //   playData.viewId = req.body.viewId;
+  // }
+
+  let play = await VideoPlayTime.findOrCreate({
+    where: { viewId: req.body.viewId },
+    defaults: { playData },
+  });
+
+  if (!play[1]) {
+    VideoPlayTime.update(playData, {
+      where: {
+        viewId: req.body.viewId,
+      },
+    });
   }
 
-  let play = await VideoPlayTime.create(playData);
   return res.status(200).send({
     uuid: play.uuid,
     viewId: play.viewId,
