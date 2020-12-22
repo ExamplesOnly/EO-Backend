@@ -327,15 +327,24 @@ exports.postPlayTime = async (req, res) => {
 
   let play = await VideoPlayTime.findOrCreate({
     where: { viewId: req.body.viewId },
-    defaults: { playData },
+    defaults: playData,
   });
 
-  if (!play[1]) {
-    VideoPlayTime.update(playData, {
-      where: {
-        viewId: req.body.viewId,
-      },
-    });
+  // update entry if it already exists
+  // but only if the play time is greater
+  // than previous value
+  if (
+    !play[1] &&
+    JSON.parse(JSON.stringify(play))[0].playTime < parseInt(req.body.playTime)
+  ) {
+    VideoPlayTime.update(
+      { playTime: req.body.playTime },
+      {
+        where: {
+          viewId: req.body.viewId,
+        },
+      }
+    );
   }
 
   return res.status(200).send({

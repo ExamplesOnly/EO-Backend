@@ -21,7 +21,7 @@ exports.postViewBow = [
     .withMessage("Video not found."),
   body("userId", "User is not valid.")
     .exists({ checkNull: true })
-    .withMessage("Video ID is required.")
+    .withMessage("User ID is required.")
     .custom(async (value, { req }) => {
       const user = await User.findOne({
         where: { uuid: req.body.userId },
@@ -74,18 +74,23 @@ exports.postPlayTime = [
     .custom(async (value, { req }) => {
       if (req.bowUser.uuid != req.user.uuid) return Promise.reject();
     })
-    .withMessage("You are not allowed to perform this action"),
+    .withMessage("You are not allowed to perform this action."),
   body("viewId", "View ID is required.")
     .exists({ checkNull: true })
     .withMessage("View ID is required.")
     .custom(async (value, { req }) => {
-      const video = await VideoView.findOne({
+      const view = await VideoView.findOne({
         where: { uuid: req.body.viewId },
       });
 
-      if (!video) {
+      if (!view) {
         return Promise.reject();
       }
     })
     .withMessage("Invalid View ID"),
+  body("playTime", "Play time is required.")
+    .exists({ checkNull: true })
+    .withMessage("View ID is required.")
+    .isNumeric()
+    .withMessage("Play Time must be an integer."),
 ];
