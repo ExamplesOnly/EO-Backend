@@ -14,6 +14,10 @@ const mediaCdnHost = process.env.AWS_CLOUFRONT_MEDIA_HOST
   ? process.env.AWS_CLOUFRONT_MEDIA_HOST
   : "mediacdn.examplesonly.com";
 
+const publicCdnHost = process.env.AWS_CLOUFRONT_PUBLIC_HOST
+  ? process.env.AWS_CLOUFRONT_PUBLIC_HOST
+  : "cdn.examplesonly.com";
+
 exports.add = async (req, res) => {
   const category = await Category.findOrCreate({
     where: {
@@ -75,7 +79,7 @@ exports.getCategoryVideos = async (req, res) => {
   }
 
   const [results, metadata] = await db.sequelize.query(
-    `SELECT Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id) AS bow, (SELECT COUNT(*) FROM VideoViews WHERE videoId=Videos.id) AS view, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id AND userId=1)  AS userBowed, Videos.fileKey, Videos.thumbKey, Videos.createdAt, User.uuid AS 'User.uuid', User.firstName AS 'User.firstName', User.email AS 'User.email', User.profileImage AS 'User.profileImage' from Videos INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId LEFT OUTER JOIN Users AS User ON Videos.userId = User.id WHERE VideoCategories.categoryId = ${category.id}`
+    `SELECT Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id) AS bow, (SELECT COUNT(*) FROM VideoViews WHERE videoId=Videos.id) AS view, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id AND userId=1)  AS userBowed, Videos.fileKey, Videos.thumbKey, Videos.createdAt, User.uuid AS 'User.uuid', User.firstName AS 'User.firstName', User.email AS 'User.email', User.profileImageKey AS 'User.profileImageKey' from Videos INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId LEFT OUTER JOIN Users AS User ON Videos.userId = User.id WHERE VideoCategories.categoryId = ${category.id}`
   );
 
   results.map((vid) => {
@@ -85,13 +89,18 @@ exports.getCategoryVideos = async (req, res) => {
     vid.User.uuid = vid["User.uuid"];
     vid.User.firstName = vid["User.firstName"];
     vid.User.email = vid["User.email"];
-    vid.User.profileImage = vid["User.profileImage"];
+
+    let profileImageKey = vid["User.profileImageKey"];
+    vid.User.profileImage = profileImageKey
+      ? `https://${publicCdnHost}/${profileImageKey}`
+      : null;
+
     delete vid["fileKey"];
     delete vid["thumbKey"];
     delete vid["User.uuid"];
     delete vid["User.firstName"];
     delete vid["User.email"];
-    delete vid["User.profileImage"];
+    delete vid["User.profileImageKey"];
     return vid;
   });
 
