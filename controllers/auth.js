@@ -3,11 +3,6 @@ const bcrypt = require("bcryptjs");
 const mail = require("./mail");
 const Op = require("sequelize").Op;
 const { signToken, CustomError } = require("../utils");
-// const customAlphabet = require("nanoid").customAlphabet;
-// const nanoid = customAlphabet(
-//   "1234567890abcdefghijklmnopqrstwxyz",
-//   process.env.ACCOUNT_UUID_LENGTH ? process.env.ACCOUNT_UUID_LENGTH : 10
-// );
 const { nanoid } = require("nanoid");
 
 const Users = require("../models").User;
@@ -126,4 +121,22 @@ exports.verify = async (req, res, next) => {
   }
 
   throw new CustomError("Verification token expired.", 401);
+};
+
+exports.changePassword = async (req, res, next) => {
+  const salt = await bcrypt.genSalt(12);
+  const updatedPassword = await bcrypt.hash(req.body.newPassword, salt);
+
+  const user = await Users.update(
+    { password: updatedPassword },
+    {
+      where: {
+        email: req.body.email,
+      },
+    }
+  );
+
+  if (!user) return res.status(400).send("Failed to update password");
+
+  return res.status(201).send("Password Updated");
 };
