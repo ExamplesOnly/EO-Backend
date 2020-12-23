@@ -70,6 +70,7 @@ exports.signup = async (req, res) => {
       firstName: req.body.firstName,
       middleName: req.body.middleName,
       lastName: req.body.lastName,
+
       password,
     },
   });
@@ -136,7 +137,9 @@ exports.changePassword = async (req, res, next) => {
     }
   );
 
-  if (!user) return res.status(400).send("Failed to update password");
+  if (!user) throw new CustomError("Failed to update password");
 
-  return res.status(201).send("Password Updated");
+  return res
+    .status(200)
+    .send({ status: "success", message: "Password Updated" });
 };
