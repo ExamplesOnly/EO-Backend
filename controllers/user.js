@@ -8,6 +8,10 @@ const { sequelize } = require("../models");
 const { CustomError } = require("../utils");
 const { s3 } = require("../config/media");
 
+const cdnHost = process.env.AWS_CLOUFRONT_PUBLIC_HOST
+  ? process.env.AWS_CLOUFRONT_PUBLIC_HOST
+  : "cdn.examplesonly.com";
+
 exports.me = async (req, res) => {
   let user = await User.findOne({
     attributes: [
@@ -74,6 +78,8 @@ exports.addInterests = async (req, res) => {
 };
 
 exports.uploadProfileImage = async (req, res) => {
+  if (!req.file) new CustomError("Profile image upload failed", 400);
+
   const userData = await User.findOne({
     where: { email: req.user.email },
   });
@@ -95,10 +101,16 @@ exports.uploadProfileImage = async (req, res) => {
 
   if (!user) throw new CustomError("Some error occured", 400);
 
-  res.status(200).send({ url: user.profileImage });
+  console.log(user, req.file);
+
+  res.status(200).send({
+    url: req.file.key ? `https://${cdnHost}/${req.file.key}` : null,
+  });
 };
 
 exports.uploadCoverImage = async (req, res) => {
+  if (!req.file) new CustomError("Cover image upload failed", 400);
+
   const userData = await User.findOne({
     where: { email: req.user.email },
   });
@@ -120,7 +132,9 @@ exports.uploadCoverImage = async (req, res) => {
 
   if (!user) throw new CustomError("Some error occured", 400);
 
-  res.status(200).send({ url: user.coverImage });
+  res
+    .status(200)
+    .send({ url: req.file.key ? `https://${cdnHost}/${req.file.key}` : null });
 };
 
 exports.updateProfile = async (req, res) => {
