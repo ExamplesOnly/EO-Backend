@@ -78,7 +78,7 @@ exports.addInterests = async (req, res) => {
 };
 
 exports.uploadProfileImage = async (req, res) => {
-  if (!req.file) new CustomError("Profile image upload failed", 400);
+  if (!req.file) throw new CustomError("Profile image upload failed", 400);
 
   const userData = await User.findOne({
     where: { email: req.user.email },
@@ -109,7 +109,7 @@ exports.uploadProfileImage = async (req, res) => {
 };
 
 exports.uploadCoverImage = async (req, res) => {
-  if (!req.file) new CustomError("Cover image upload failed", 400);
+  if (!req.file) throw new CustomError("Cover image upload failed", 400);
 
   const userData = await User.findOne({
     where: { email: req.user.email },
