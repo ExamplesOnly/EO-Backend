@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
+      userId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -66,6 +71,10 @@ module.exports = (sequelize, DataTypes) => {
   );
   User.associate = function (models) {
     User.hasMany(models.Video, {
+      foreignKey: "userId",
+    });
+
+    User.hasMany(models.VideoBookmark, {
       foreignKey: "userId",
     });
 
