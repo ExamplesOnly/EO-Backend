@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       viewId: {
         type: DataTypes.UUID,
-        allowNull: true,
+        unique: true,
       },
       playTime: {
         type: DataTypes.INTEGER,

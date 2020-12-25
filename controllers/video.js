@@ -321,10 +321,6 @@ exports.postPlayTime = async (req, res) => {
     playTime: req.body.playTime,
   };
 
-  // if (req.body.viewId) {
-  //   playData.viewId = req.body.viewId;
-  // }
-
   let play = await VideoPlayTime.findOrCreate({
     where: { viewId: req.body.viewId },
     defaults: playData,

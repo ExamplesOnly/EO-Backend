@@ -8,7 +8,7 @@ module.exports = {
         type: Sequelize.UUID,
       },
       viewId: {
-        allowNull: true,
+        unique: true,
         type: Sequelize.UUID,
       },
       videoId: {
