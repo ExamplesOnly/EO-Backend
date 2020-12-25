@@ -84,10 +84,8 @@ exports.uploadProfileImage = async (req, res) => {
     where: { email: req.user.email },
   });
 
-  if (userData && userData.profileImage) {
-    let fileSplit = userData.profileImage.split("/");
-    let fileName = fileSplit[fileSplit.length - 1];
-    await deleteFileS3(fileName);
+  if (userData && userData.profileImageKey) {
+    await deleteFileS3(userData.profileImageKey);
   }
 
   const user = await User.update(
@@ -115,10 +113,8 @@ exports.uploadCoverImage = async (req, res) => {
     where: { email: req.user.email },
   });
 
-  if (userData && userData.coverImage) {
-    let fileSplit = userData.coverImage.split("/");
-    let fileName = fileSplit[fileSplit.length - 1];
-    await deleteFileS3(fileName);
+  if (userData && userData.coverImageKey) {
+    await deleteFileS3(userData.coverImageKey);
   }
 
   const user = await User.update(
