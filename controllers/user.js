@@ -7,10 +7,17 @@ const ExampleDemand = require("../models").ExampleDemand;
 const { sequelize } = require("../models");
 const { CustomError } = require("../utils");
 const { s3 } = require("../config/media");
+const { signUrl } = require("../config/media");
+
+const thirtyMins = 30 * 60 * 1000;
 
 const cdnHost = process.env.AWS_CLOUFRONT_PUBLIC_HOST
   ? process.env.AWS_CLOUFRONT_PUBLIC_HOST
   : "cdn.examplesonly.com";
+
+const mediaCdnHost = process.env.AWS_CLOUFRONT_MEDIA_HOST
+  ? process.env.AWS_CLOUFRONT_MEDIA_HOST
+  : "mediacdn.examplesonly.com";
 
 exports.me = async (req, res) => {
   let user = await User.findOne({
@@ -372,6 +379,49 @@ exports.getUserProfile = async (req, res) => {
   delete userData.id;
 
   res.status(200).send(userData);
+};
+
+exports.getVideoBookmarks = async (req, res) => {
+  // const user = await User.findOne({
+  //   where: { id: req.user.id },
+  //   attributes: ["firstName"],
+  //   include: [
+  //     {
+  //       model: Video,
+  //       attributes: ["videoId", "title"],
+  //       through: [
+  //         {
+  //           as: "VideoBookmark",
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // });
+
+  //Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id) AS bow, (SELECT COUNT(*) FROM VideoViews WHERE videoId=Videos.id) AS view, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id AND userId=1)  AS userBowed, Videos.fileKey, Videos.thumbKey, Videos.createdAt
+
+  const [results, metadata] = await sequelize.query(
+    `SELECT Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, ` +
+      `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id) AS bow, ` +
+      `(SELECT COUNT(*) FROM VideoViews WHERE videoId=Videos.id) AS view, ` +
+      `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id AND userId=${req.user.id})  AS userBowed, ` +
+      `(SELECT COUNT(*) FROM VideoBookmarks WHERE videoId=Videos.id AND userId=${req.user.id}) AS userBookmarked, ` +
+      `Videos.fileKey, Videos.thumbKey, Videos.createdAt FROM Users ` +
+      `INNER JOIN VideoBookmarks on Users.id = VideoBookmarks.userId ` +
+      `INNER JOIN Videos on VideoBookmarks.videoId = Videos.id ` +
+      `WHERE Users.id = ${req.user.id}`
+  );
+
+  results.map((vid) => {
+    vid.url = signUrl(mediaCdnHost, vid["fileKey"], thirtyMins);
+    vid.thumbUrl = signUrl(mediaCdnHost, vid["thumbKey"], thirtyMins);
+
+    delete vid["fileKey"];
+    delete vid["thumbKey"];
+    return vid;
+  });
+
+  res.status(200).send(results);
 };
 
 async function deleteFileS3(file) {

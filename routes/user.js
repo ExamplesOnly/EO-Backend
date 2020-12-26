@@ -74,6 +74,11 @@ moduleRouter.get(
   asyncHandler(auth.passportJwt),
   asyncHandler(user.getUserProfile)
 );
+moduleRouter.get(
+  "/myVideoBookmarks",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(user.getVideoBookmarks)
+);
 
 module.exports = {
   moduleRouter,
