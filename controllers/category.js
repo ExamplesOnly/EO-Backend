@@ -79,7 +79,14 @@ exports.getCategoryVideos = async (req, res) => {
   }
 
   const [results, metadata] = await db.sequelize.query(
-    `SELECT Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id) AS bow, (SELECT COUNT(*) FROM VideoViews WHERE videoId=Videos.id) AS view, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id AND userId=1)  AS userBowed, Videos.fileKey, Videos.thumbKey, Videos.createdAt, User.uuid AS 'User.uuid', User.firstName AS 'User.firstName', User.email AS 'User.email', User.profileImageKey AS 'User.profileImageKey' from Videos INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId LEFT OUTER JOIN Users AS User ON Videos.userId = User.id WHERE VideoCategories.categoryId = ${category.id}`
+    `SELECT Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, ` +
+      `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id) AS bow, ` +
+      `(SELECT COUNT(*) FROM VideoViews WHERE videoId=Videos.id) AS view, ` +
+      `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id AND userId=${req.user.id})  AS userBowed, ` +
+      `(SELECT COUNT(*) FROM VideoBookmarks WHERE videoId=Videos.id AND userId=${req.user.id}) AS userBookmarked, ` +
+      `Videos.fileKey, Videos.thumbKey, Videos.createdAt, User.uuid AS 'User.uuid', User.firstName AS 'User.firstName', User.email AS 'User.email', User.profileImageKey AS 'User.profileImageKey' from Videos ` +
+      `INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId ` +
+      `LEFT OUTER JOIN Users AS User ON Videos.userId = User.id WHERE VideoCategories.categoryId = ${category.id}`
   );
 
   results.map((vid) => {
