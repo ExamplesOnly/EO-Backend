@@ -199,7 +199,7 @@ exports.getVideos = async (req, res) => {
     return vid;
   });
 
-  res.send(video);
+  return res.status(200).send(video);
 };
 
 exports.deleteVideo = async (req, res) => {
