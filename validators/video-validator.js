@@ -94,3 +94,22 @@ exports.postPlayTime = [
     .isNumeric()
     .withMessage("Play Time must be an integer."),
 ];
+
+exports.postBookmark = [
+  body("videoId", "Video ID is required.")
+    .exists({ checkNull: true })
+    .withMessage("Video ID is required.")
+    .custom(async (value, { req }) => {
+      const video = await Video.findOne({
+        where: { videoId: req.body.videoId },
+        attributes: ["id", "videoId"],
+      });
+
+      if (!video) {
+        return Promise.reject();
+      }
+
+      req.video = video;
+    })
+    .withMessage("Video not found."),
+];

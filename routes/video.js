@@ -82,6 +82,14 @@ moduleRouter.post(
   asyncHandler(video.postBow)
 );
 
+moduleRouter.post(
+  "/bookmark",
+  asyncHandler(auth.passportJwt),
+  videoValidator.postBookmark,
+  asyncHandler(helper.verify),
+  asyncHandler(video.bookmarkVideo)
+);
+
 module.exports = {
   moduleRouter,
   config,

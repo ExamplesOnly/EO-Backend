@@ -9,6 +9,7 @@ const VideoBow = require("../models").VideoBow;
 const VideoView = require("../models").VideoView;
 const VideoReach = require("../models").VideoReach;
 const VideoPlayTime = require("../models").VideoPlayTime;
+const VideoBookmark = require("../models").VideoBookmark;
 const { sequelize } = require("../models");
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
@@ -151,6 +152,12 @@ exports.getVideos = async (req, res) => {
         ),
         "userBowed",
       ],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoBookmarks WHERE videoId=Video.id AND userId=${req.user.id})`
+        ),
+        "userBookmarked",
+      ],
       "url",
       "thumbUrl",
       "fileKey",
@@ -234,6 +241,12 @@ exports.getVideo = async (req, res) => {
           `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Video.id AND userId=${req.user.id})`
         ),
         "userBowed",
+      ],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM VideoBookmarks WHERE videoId=Video.id AND userId=${req.user.id})`
+        ),
+        "userBookmarked",
       ],
       "url",
       "thumbUrl",
@@ -368,4 +381,25 @@ exports.postBow = async (req, res) => {
   }
 
   return res.status(200).send({ status: bow[1] });
+};
+
+exports.bookmarkVideo = async (req, res) => {
+  var bookmark = await VideoBookmark.findOrCreate({
+    where: {
+      videoId: req.video.id,
+      userId: req.user.id,
+    },
+  });
+
+  // delete if already bow'ed
+  if (!bookmark[1]) {
+    await VideoBookmark.destroy({
+      where: {
+        videoId: req.video.id,
+        userId: req.user.id,
+      },
+    });
+  }
+
+  return res.status(200).send({ status: bookmark[1] });
 };
