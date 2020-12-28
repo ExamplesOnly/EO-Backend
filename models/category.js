@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     Category.hasMany(models.ExampleDemand, {
       foreignKey: "categoryId",
     });
+
+    Category.hasMany(models.VideoCategoryTrending, {
+      foreignKey: "categoryId",
+    });
   };
   return Category;
 };
