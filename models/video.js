@@ -50,6 +50,10 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
   Video.associate = function (models) {
+    Video.hasOne(models.VideoMeta, {
+      foreignKey: "videoId",
+    });
+
     Video.belongsTo(models.User, {
       foreignKey: "userId",
     });
@@ -94,6 +98,14 @@ module.exports = (sequelize, DataTypes) => {
 
     Video.hasMany(models.VideoPlayTime, {
       foreignKey: "videoId",
+    });
+
+    Video.hasOne(models.VideoGlobalTrending, {
+      foreignKey: "videoId",
+    });
+
+    Video.hasOne(models.VideoCategoryTrending, {
+      foreignKey: "categoryId",
     });
   };
   return Video;
