@@ -46,6 +46,18 @@ async function deleteFileS3(file) {
     .promise();
 }
 
+async function deleteVideoS3(file) {
+  return s3
+    .deleteObject({
+      Key: file,
+      Bucket:
+        process.env.NODE_ENV == "production"
+          ? process.env.AWS_S3_PRIVATE_BUCKET_NAME
+          : process.env.AWS_S3_DEV_BUCKET_NAME,
+    })
+    .promise();
+}
+
 const signer = new AWS.CloudFront.Signer(
   process.env.AWS_CLOUFRONT_ACCESS_KEY,
   process.env.NODE_ENV == "production"
@@ -69,5 +81,6 @@ module.exports = {
   storages3,
   uploads3,
   deleteFileS3,
+  deleteVideoS3,
   signUrl,
 };

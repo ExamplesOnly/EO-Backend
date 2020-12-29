@@ -13,7 +13,7 @@ const VideoBookmark = require("../models").VideoBookmark;
 const { sequelize } = require("../models");
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
-const { deleteFileS3 } = require("../config/media");
+const { deleteVideoS3 } = require("../config/media");
 
 const { s3 } = require("../config/media");
 
@@ -215,7 +215,10 @@ exports.deleteVideo = async (req, res) => {
   }
 
   video.destroy();
-  await deleteFileS3(video.videoId);
+  let videoData = JSON.parse(JSON.stringify(video));
+
+  await deleteVideoS3(videoData.videoId + ".mp4");
+  await deleteVideoS3(videoData.videoId + "_thumb");
   return res.status(200).send({});
 };
 
