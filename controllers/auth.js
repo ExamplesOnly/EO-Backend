@@ -64,7 +64,9 @@ exports.signup = async (req, res) => {
     },
     defaults: {
       uuid: nanoid(
-        process.env.ACCOUNT_UUID_LENGTH ? process.env.ACCOUNT_UUID_LENGTH : 10
+        process.env.ACCOUNT_UUID_LENGTH
+          ? parseInt(process.env.ACCOUNT_UUID_LENGTH)
+          : 10
       ),
       email: req.body.email,
       firstName: req.body.firstName,

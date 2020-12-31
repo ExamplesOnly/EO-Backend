@@ -35,8 +35,9 @@ exports.verification = async (email) => {
   );
 
   const dynamicLink = await generateDynamicLink(
-    `http://api.examplesonly.com/v1/auth/verify/${token}`
+    `${process.env.MAIL_VERIFY_URL}${token}`
   );
+
   const confirmLink = await dynamicLink.json();
 
   const mail = await transporter.sendMail({
@@ -46,6 +47,8 @@ exports.verification = async (email) => {
     text: `Verify your ExamplesOnly account by visiting this link: ${confirmLink.shortLink}`,
     html: `Verify your <b>ExamplesOnly</b> account by visiting this link: ${confirmLink.shortLink}`,
   });
+
+  console.log("Mail", mail);
 
   if (!mail.accepted.length) {
     throw new CustomError("Couldn't send verification email. Try again later.");
