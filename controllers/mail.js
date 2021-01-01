@@ -1,9 +1,22 @@
+const path = require("path");
+const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 const nodemailer = require("nodemailer");
 const { generateDynamicLink } = require("../utils");
-const { differenceInMinutes, addMinutes, subMinutes } = require("date-fns");
+const { addHours } = require("date-fns");
 
 const Users = require("../models").User;
+
+const verifyEmailTemplatePath = path.join(
+  __dirname,
+  "..",
+  "static",
+  "verify_account.html"
+);
+
+const verifyEmailTemplate = fs.readFileSync(verifyEmailTemplatePath, {
+  encoding: "utf-8",
+});
 
 const mailConfig = {
   host: process.env.MAIL_HOST,
@@ -25,7 +38,7 @@ exports.verification = async (email) => {
     {
       emailVerified: false,
       verification_token: token,
-      verification_expires: addMinutes(new Date(), 15).toISOString(),
+      verification_expires: addHours(new Date(), 48).toISOString(),
     },
     {
       where: {
@@ -44,11 +57,15 @@ exports.verification = async (email) => {
     from: process.env.MAIL_FROM_NO_REPLY || process.env.MAIL_USER,
     to: email,
     subject: "Verify your account",
-    text: `Verify your ExamplesOnly account by visiting this link: ${confirmLink.shortLink}`,
-    html: `Verify your <b>ExamplesOnly</b> account by visiting this link: ${confirmLink.shortLink}`,
-  });
+    text: `Thank you for choosing ExamplesOnly. Please verify your e-mail to finish signing up for ExamplesOnly.
 
-  console.log("Mail", mail);
+    Please visit the link below to verify your email address.
+    
+    ${confirmLink.shortLink}`,
+    html: verifyEmailTemplate
+      .replace(/{{email}}/gm, email)
+      .replace(/{{verification_url}}/gm, confirmLink.shortLink),
+  });
 
   if (!mail.accepted.length) {
     throw new CustomError("Couldn't send verification email. Try again later.");
