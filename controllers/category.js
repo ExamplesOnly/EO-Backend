@@ -61,6 +61,7 @@ exports.getCategories = async (req, res) => {
         "videoCount",
       ],
     ],
+    order: [["title", "ASC"]],
   });
   res.status(200).send(categories);
 };
