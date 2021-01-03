@@ -184,7 +184,7 @@ exports.getUserDemands = async (req, res) => {
       "title",
       "description",
       [sequelize.fn("COUNT", sequelize.col("Videos.id")), "videoCount"],
-      // [sequelize.fn("COUNT", sequelize.findAll({})), "isBookmarked"],
+      "createdAt",
     ],
     group: ["uuid"],
     include: [

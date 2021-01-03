@@ -24,7 +24,7 @@ exports.addDemand = async (req, res) => {
     },
   });
 
-  if (!demand) throw new CustomError("");
+  if (!demand) throw new CustomError("Could not add demand.");
 
   return res.status(200).send(demand[0]);
 };
@@ -41,7 +41,7 @@ exports.getDemands = async (req, res) => {
       "title",
       "description",
       [sequelize.fn("COUNT", sequelize.col("Videos.id")), "videoCount"],
-      // [sequelize.fn("COUNT", sequelize.findAll({})), "isBookmarked"],
+      "createdAt",
     ],
     group: ["uuid"],
     include: [
