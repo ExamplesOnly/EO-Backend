@@ -10,6 +10,7 @@ const VideoView = require("../models").VideoView;
 const VideoReach = require("../models").VideoReach;
 const VideoPlayTime = require("../models").VideoPlayTime;
 const VideoBookmark = require("../models").VideoBookmark;
+const VideoReport = require("../models").VideoReport;
 const { sequelize } = require("../models");
 const { nanoid } = require("nanoid");
 const { CustomError } = require("../utils");
@@ -405,4 +406,20 @@ exports.bookmarkVideo = async (req, res) => {
   }
 
   return res.status(200).send({ status: bookmark[1] });
+};
+
+exports.reportVideo = async (req, res) => {
+  var report = await VideoReport.findOrCreate({
+    where: {
+      videoId: req.video.id,
+      userId: req.user.id,
+      reportId: 2,
+    },
+  });
+
+  if (!report) {
+    throw new CustomError("Could not report", 400);
+  }
+
+  return res.status(200).send({ status: true });
 };

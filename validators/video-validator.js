@@ -113,3 +113,22 @@ exports.postBookmark = [
     })
     .withMessage("Video not found."),
 ];
+
+exports.postReport = [
+  body("videoId", "Video ID is required.")
+    .exists({ checkNull: true })
+    .withMessage("Video ID is required.")
+    .custom(async (value, { req }) => {
+      const video = await Video.findOne({
+        where: { videoId: req.body.videoId },
+        attributes: ["id", "videoId"],
+      });
+
+      if (!video) {
+        return Promise.reject();
+      }
+
+      req.video = video;
+    })
+    .withMessage("Video not found."),
+];

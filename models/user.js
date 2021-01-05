@@ -121,6 +121,10 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.VideoPlayTime, {
       foreignKey: "userId",
     });
+
+    User.hasMany(models.VideoReport, {
+      foreignKey: "userId",
+    });
   };
   return User;
 };
