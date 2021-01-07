@@ -21,6 +21,8 @@ moduleRouter.get("/userlist", asyncHandler(admin.userList));
 
 moduleRouter.post("/deleteuser", asyncHandler(admin.deleteUser));
 
+moduleRouter.get("/xtotalstat", asyncHandler(admin.xTotalStat));
+
 module.exports = {
   moduleRouter,
   config,
