@@ -87,12 +87,19 @@ exports.getCategoryVideos = async (req, res) => {
       `(SELECT COUNT(*) FROM VideoBookmarks WHERE videoId=Videos.id AND userId=${req.user.id}) AS userBookmarked, ` +
       `Videos.fileKey, Videos.thumbKey, Videos.createdAt, User.uuid AS 'User.uuid', User.firstName AS 'User.firstName', User.email AS 'User.email', User.profileImageKey AS 'User.profileImageKey' from Videos ` +
       `INNER JOIN VideoCategories ON Videos.id = VideoCategories.videoId ` +
-      `LEFT OUTER JOIN Users AS User ON Videos.userId = User.id WHERE VideoCategories.categoryId = ${category.id}`
+      `LEFT OUTER JOIN Users AS User ON Videos.userId = User.id ` +
+      `WHERE VideoCategories.categoryId = ${category.id} ORDER BY createdAt DESC`
   );
 
   results.map((vid) => {
-    vid.url = signUrl(mediaCdnHost, vid["fileKey"], thirtyMins);
-    vid.thumbUrl = signUrl(mediaCdnHost, vid["thumbKey"], thirtyMins);
+    vid.url =
+      process.env.NODE_ENV == "production"
+        ? signUrl(mediaCdnHost, vid["fileKey"], thirtyMins)
+        : `https://${mediaCdnHost}/${vid["fileKey"]}`;
+    vid.thumbUrl =
+      process.env.NODE_ENV == "production"
+        ? signUrl(mediaCdnHost, vid["thumbKey"], sevenDays)
+        : `https://${mediaCdnHost}/${vid["thumbKey"]}`;
     vid.User = {};
     vid.User.uuid = vid["User.uuid"];
     vid.User.firstName = vid["User.firstName"];
