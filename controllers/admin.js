@@ -30,7 +30,20 @@ exports.xTotalStat = async (req, res) => {
       `FROM VideoMeta;`
   );
 
+  const [contributers, cmetadata] = await sequelize.query(
+    `SELECT COUNT(DISTINCT(userId)) AS con FROM Videos;`
+  );
+
+  const [onlookers, ometadata] = await sequelize.query(
+    `SELECT COUNT(DISTINCT(userId)) AS onl FROM VideoViews;`
+  );
+
+  console.log(onlookers);
+
   const data = results[0];
+  data.contributerCount = contributers[0].con;
+  data.onlookersCount = onlookers[0].onl;
+  // const
 
   res.send({ userCount, videoCount, data });
 };
