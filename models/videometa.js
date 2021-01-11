@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       duration: DataTypes.INTEGER,
       bow: DataTypes.INTEGER,
       view: DataTypes.INTEGER,
+      uniqueView: DataTypes.INTEGER,
       totalPlayTime: DataTypes.INTEGER,
       totalBookmark: DataTypes.INTEGER,
       eoi: DataTypes.DOUBLE,

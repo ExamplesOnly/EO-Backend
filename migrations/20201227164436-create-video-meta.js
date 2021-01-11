@@ -1,45 +1,48 @@
-'use strict';
+"use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('videoMeta', {
+    await queryInterface.createTable("videoMeta", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       videoId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       duration: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       bow: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       view: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+      },
+      uniqueView: {
+        type: Sequelize.INTEGER,
       },
       totalPlayTime: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       totalBookmark: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       eoi: {
-        type: Sequelize.DOUBLE
+        type: Sequelize.DOUBLE,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('videoMeta');
-  }
+    await queryInterface.dropTable("videoMeta");
+  },
 };
