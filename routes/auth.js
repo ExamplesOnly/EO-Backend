@@ -27,11 +27,32 @@ moduleRouter.post(
 );
 
 moduleRouter.post(
+  "/sessionlogin",
+  validator.login,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.passportLocal),
+  asyncHandler(auth.generateSession),
+  asyncHandler(auth.signAuthToken)
+);
+
+moduleRouter.post(
+  "/refreshToken",
+  validator.refreshToken,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.refreshAuthToken)
+);
+
+moduleRouter.post(
   "/signup",
   auth.signupAccess,
   validator.signup,
   asyncHandler(helper.verify),
   asyncHandler(auth.signup)
+);
+
+moduleRouter.get(
+  "/socialsignin/google/:token?",
+  asyncHandler(auth.googleLogin)
 );
 
 moduleRouter.get("/verify/:verificationToken?", asyncHandler(auth.verify));

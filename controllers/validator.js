@@ -17,6 +17,12 @@ exports.login = [
     .withMessage("Email length must be max 255."),
 ];
 
+exports.refreshToken = [
+  body("refreshToken", "Invalid request.")
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage("Invalid request."),
+];
+
 exports.signup = [
   body("firstName", "First name is required.")
     .exists({ checkNull: true })

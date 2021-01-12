@@ -71,6 +71,10 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
   User.associate = function (models) {
+    User.hasMany(models.UserSession, {
+      foreignKey: "userId",
+    });
+
     User.hasMany(models.Video, {
       foreignKey: "userId",
     });

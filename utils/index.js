@@ -2,12 +2,7 @@ const JWT = require("jsonwebtoken");
 const urlBuilder = require("build-url");
 const fetch = require("node-fetch");
 
-const {
-  differenceInDays,
-  differenceInHours,
-  differenceInMonths,
-  addDays,
-} = require("date-fns");
+const { addDays, addHours } = require("date-fns");
 
 class CustomError extends Error {
   constructor(message, statusCode = 500, data) {
@@ -25,6 +20,17 @@ const signToken = (email) =>
       sub: email,
       iat: parseInt((new Date().getTime() / 1000).toFixed(0)),
       exp: parseInt((addDays(new Date(), 7).getTime() / 1000).toFixed(0)),
+    },
+    process.env.JWT_SECRET
+  );
+
+const tempToken = (email) =>
+  JWT.sign(
+    {
+      iss: "ApiAuth",
+      sub: email,
+      iat: parseInt((new Date().getTime() / 1000).toFixed(0)),
+      exp: parseInt((addHours(new Date(), 1).getTime() / 1000).toFixed(0)),
     },
     process.env.JWT_SECRET
   );
@@ -59,5 +65,6 @@ const generateDynamicLink = async (url) => {
 module.exports = {
   CustomError,
   signToken,
+  tempToken,
   generateDynamicLink,
 };

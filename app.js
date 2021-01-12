@@ -5,12 +5,14 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const useragent = require("express-useragent");
 const db = require("./models");
 const helpers = require("./controllers/helper");
 
 require("./config/passport");
 
 const middlewares = require("./middleware");
+const { EoMobileuserAgent } = require("./middleware/useragent");
 const api = require("./routes");
 
 const app = express();
@@ -19,6 +21,9 @@ app.use(morgan("dev"));
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.set("trust proxy", true);
+app.use(useragent.express());
+app.use(EoMobileuserAgent);
 
 // parse application/json
 app.use(bodyParser.json());
