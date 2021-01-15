@@ -25,11 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       firstName: DataTypes.STRING,
       middleName: DataTypes.STRING,
       lastName: DataTypes.STRING,
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      eoi: DataTypes.DOUBLE,
+      password: DataTypes.STRING,
       bio: DataTypes.STRING,
       dob: DataTypes.DATEONLY,
       gender: DataTypes.STRING,
@@ -67,6 +63,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       verification_token: DataTypes.STRING,
       verification_expires: DataTypes.DATE,
+      googleId: DataTypes.STRING,
     },
     {}
   );

@@ -1,11 +1,17 @@
-const passport = require("passport");
+var _ = require("lodash");
 const bcrypt = require("bcryptjs");
-const mail = require("./mail");
 const Op = require("sequelize").Op;
-const { signToken, tempToken, CustomError } = require("../utils");
+const geoip = require("geoip-lite");
+const passport = require("passport");
 const { nanoid, customAlphabet } = require("nanoid");
 const { OAuth2Client } = require("google-auth-library");
-const geoip = require("geoip-lite");
+const {
+  getUserDataFromGoogle,
+  getAccessToken,
+  extractUserDataFromGoogle,
+} = require("./socialauth");
+const mail = require("./mail");
+const { signToken, tempToken, CustomError } = require("../utils");
 
 const Users = require("../models").User;
 const UserSession = require("../models").UserSession;
@@ -17,7 +23,6 @@ const client = new OAuth2Client(process.env.GOOGLE_SERVER_CLIENT_ID);
 const refreshTokenLength = process.env.REFRESH_TOKEN_LENGTH
   ? process.env.REFRESH_TOKEN_LENGTH
   : 122;
-const auth = {};
 
 const authenticate = (type, error) =>
   async function auth(req, res, next) {
@@ -39,7 +44,7 @@ const authenticate = (type, error) =>
       }
 
       // if (user && user.banned) {
-      //   throw new CustomError("You're banned from using this website.", 403);
+      //   throw new CustomError("You're banned from using ExamplesOnly.", 403);
       // }
 
       if (user) {
@@ -91,18 +96,91 @@ exports.signup = async (req, res) => {
   });
 };
 
-// exports.googleLogin = async (req, res, next) => {
-//   if (!req.params.token) throw new CustomError("Could not signin.", 401);
+exports.validateGoogleAccessToken = async (req, res, next) => {
+  // Check if access token is present in the request
+  if (req.body.accessToken) {
+    req.accessToken = req.body.accessToken;
+    return next();
+  }
 
-//   const ticket = await verifyGoogleToken(req.params.token);
-//   if (!ticket) throw new CustomError("Could not signin.", 401);
-// };
+  // If access token is not present, auth code is required
+  if (!req.body.authCode) throw new CustomError("Invalid request.", 401);
+
+  // get access token using user auth code
+  const tokenReq = await getAccessToken(req.body.authCode);
+  req.accessToken = tokenReq.access_token;
+  return next();
+};
+
+// Handle google login
+exports.googleLogin = async (req, res, next) => {
+  const ticket = await verifyGoogleToken(req.body.idToken);
+  if (!ticket) throw new CustomError("Could not signin.", 401);
+
+  const scopeData = await getUserDataFromGoogle(ticket.sub, req.accessToken);
+  if (!scopeData) throw new CustomError("Could not signin.", 401);
+
+  const userData = extractUserDataFromGoogle(ticket.getPayload(), scopeData);
+
+  console.log({ p: ticket.getPayload(), scopeData });
+  req.userData = userData;
+  return next();
+};
+
+exports.validateUser = async (req, res, next) => {
+  // create user profile if doesnt exists on db
+  // return res.send(req.userData);
+  const newUser = await Users.findOrCreate({
+    where: {
+      email: req.userData.email,
+    },
+    defaults: {
+      uuid: nanoid(
+        process.env.ACCOUNT_UUID_LENGTH
+          ? parseInt(process.env.ACCOUNT_UUID_LENGTH)
+          : 10
+      ),
+      email: req.userData.email,
+      firstName: req.userData.fullName,
+      // middleName: req.body.middleName,
+      // lastName: req.body.lastName,
+      gender: req.userData.gender,
+      dob: req.userData.dob,
+      emailVerified: true,
+      googleId: req.userData.googleId,
+    },
+  });
+
+  // If user already exists on db and If the google account
+  // is not connected to the user profile
+  if (newUser && !newUser[1] && _.isEmpty(newUser.googleId)) {
+    // connect google account to the profile
+    const updatedUser = await Users.update(
+      {
+        googleId: req.userData.googleId,
+      },
+      { where: { email: req.userData.email } }
+    );
+    console.log("updatedUser", updatedUser);
+    req.user = updatedUser;
+    return next();
+  }
+
+  // new user account creted or google account already
+  // connected to the profile
+  console.log("newUser", newUser);
+  req.user = newUser;
+  return next();
+};
 
 async function verifyGoogleToken(token) {
   try {
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: [
+        process.env.GOOGLE_WEB_CLIENT_ID,
+        process.env.GOOGLE_ANDROID_CLIENT_ID,
+      ],
     });
 
     return ticket;
@@ -120,6 +198,8 @@ exports.token = async (req, res) => {
 };
 
 exports.generateSession = async (req, res, next) => {
+  console.log("generateSession", req.user);
+
   // if (req.useragent.isBot != false)
   //   throw new CustomError("Invalid request.", 401);
 
@@ -134,8 +214,6 @@ exports.generateSession = async (req, res, next) => {
   )
     .split(",")[0]
     .trim();
-
-  console.log(userIp);
 
   if (
     userIp &&

@@ -44,15 +44,27 @@ moduleRouter.post(
 
 moduleRouter.post(
   "/signup",
-  auth.signupAccess,
   validator.signup,
   asyncHandler(helper.verify),
   asyncHandler(auth.signup)
 );
 
-moduleRouter.get(
-  "/socialsignin/google/:token?",
-  asyncHandler(auth.googleLogin)
+// moduleRouter.post(
+//   "/sessionsignup",
+//   validator.signup,
+//   asyncHandler(helper.verify),
+//   asyncHandler(auth.signup)
+// );
+
+moduleRouter.post(
+  "/socialsignin/google",
+  validator.googleSignIn,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.validateGoogleAccessToken),
+  asyncHandler(auth.googleLogin),
+  asyncHandler(auth.validateUser),
+  asyncHandler(auth.generateSession),
+  asyncHandler(auth.signAuthToken)
 );
 
 moduleRouter.get("/verify/:verificationToken?", asyncHandler(auth.verify));
@@ -64,6 +76,14 @@ moduleRouter.post(
   asyncHandler(auth.passportLocal),
   asyncHandler(auth.changePassword)
 );
+
+// moduleRouter.post(
+//   "/forgotPassword",
+//   authValidator.changePassword,
+//   asyncHandler(helper.verify),
+//   asyncHandler(auth.passportLocal),
+//   asyncHandler(auth.changePassword)
+// );
 
 module.exports = {
   moduleRouter,

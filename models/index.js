@@ -17,6 +17,7 @@ if (config.use_env_variable) {
     {
       host: process.env.DB_HOSTNAME,
       dialect: "mysql",
+      logging: env == "development",
     }
   );
 } else {
