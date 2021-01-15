@@ -20,8 +20,10 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         allowNull: false,
       },
-      userId: DataTypes.INTEGER,
-      // devicePlatform: DataTypes.STRING,
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       deviceModel: DataTypes.STRING,
       deviceOS: DataTypes.STRING,
       deviceManufacture: DataTypes.STRING,

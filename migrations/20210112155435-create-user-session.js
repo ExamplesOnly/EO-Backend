@@ -9,6 +9,7 @@ module.exports = {
       },
       userId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
       },
       // devicePlatform: {
       //   type: Sequelize.STRING,
