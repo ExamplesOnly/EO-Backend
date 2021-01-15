@@ -303,7 +303,7 @@ exports.getUserProfile = async (req, res) => {
     ],
   });
 
-  if (!user) throw new CustomError("User account not found", 400);
+  if (!user) throw new CustomError("User account not found", 404);
 
   const userData = JSON.parse(JSON.stringify(user));
   if (userData.emailVerified == 0) {
