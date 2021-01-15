@@ -149,27 +149,32 @@ exports.validateUser = async (req, res, next) => {
       emailVerified: true,
       googleId: req.userData.googleId,
     },
+    raw: true,
   });
 
-  // If user already exists on db and If the google account
-  // is not connected to the user profile
-  if (newUser && !newUser[1] && _.isEmpty(newUser.googleId)) {
-    // connect google account to the profile
-    const updatedUser = await Users.update(
-      {
-        googleId: req.userData.googleId,
-      },
-      { where: { email: req.userData.email } }
-    );
-    console.log("updatedUser", updatedUser);
-    req.user = updatedUser;
-    return next();
+  // If user already exists on db
+  if (newUser && !newUser[1]) {
+    // If the google account is not connected
+    // to the user profile
+    if (_.isEmpty(newUser.googleId)) {
+      // connect google account to the profile
+      const updatedUser = await Users.update(
+        {
+          googleId: req.userData.googleId,
+        },
+        { where: { email: req.userData.email } }
+      );
+      console.log("updatedUser", newUser);
+      req.user = newUser[0];
+      return next();
+    }
+  } else {
+    req.user.newAccount = true;
   }
 
   // new user account creted or google account already
   // connected to the profile
-  console.log("newUser", newUser);
-  req.user = newUser;
+  req.user = newUser[0];
   return next();
 };
 
@@ -198,8 +203,6 @@ exports.token = async (req, res) => {
 };
 
 exports.generateSession = async (req, res, next) => {
-  console.log("generateSession", req.user);
-
   // if (req.useragent.isBot != false)
   //   throw new CustomError("Invalid request.", 401);
 
