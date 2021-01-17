@@ -277,11 +277,17 @@ exports.generateSession = async (req, res, next) => {
 
 exports.signAuthToken = async (req, res) => {
   const authToken = tempToken(req.user.email);
-  return res.status(200).send({
+
+  const tokenData = {
     status: "success",
     sessionToken: req.session.refreshToken,
     authToken,
-  });
+  };
+
+  if (req.user.newAccount) {
+    tokenData.newAccount = true;
+  }
+  return res.status(200).send(tokenData);
 };
 
 exports.refreshAuthToken = async (req, res) => {
