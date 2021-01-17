@@ -86,6 +86,14 @@ moduleRouter.post(
   asyncHandler(auth.setPassword)
 );
 
+
+moduleRouter.post(
+  "/logout",
+  authValidator.refreshToken,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.clearSession)
+);
+
 // moduleRouter.post(
 //   "/forgotPassword",
 //   authValidator.changePassword,

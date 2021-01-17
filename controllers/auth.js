@@ -377,3 +377,17 @@ exports.setPassword = async (req, res) => {
 
   return res.send({ status: "success", message: "Password Updated" });
 };
+
+exports.clearSession = async (req, res) => {
+  const session = await UserSession.findOne({
+    where: {
+      refreshToken: req.body.refreshToken,
+    },
+  });
+
+  if (session) {
+    session.destroy();
+  }
+
+  res.send({ status: "success" });
+};
