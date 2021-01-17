@@ -20,7 +20,7 @@ moduleRouter.get("/", (req, res) => {
 
 moduleRouter.post(
   "/login",
-  validator.login,
+  authValidator.login,
   asyncHandler(helper.verify),
   asyncHandler(auth.passportLocal),
   asyncHandler(auth.token)
@@ -28,7 +28,7 @@ moduleRouter.post(
 
 moduleRouter.post(
   "/sessionlogin",
-  validator.login,
+  authValidator.login,
   asyncHandler(helper.verify),
   asyncHandler(auth.passportLocal),
   asyncHandler(auth.generateSession),
@@ -37,14 +37,14 @@ moduleRouter.post(
 
 moduleRouter.post(
   "/refreshToken",
-  validator.refreshToken,
+  authValidator.refreshToken,
   asyncHandler(helper.verify),
   asyncHandler(auth.refreshAuthToken)
 );
 
 moduleRouter.post(
   "/signup",
-  validator.signup,
+  authValidator.signup,
   asyncHandler(helper.verify),
   asyncHandler(auth.signup)
 );
@@ -58,7 +58,7 @@ moduleRouter.post(
 
 moduleRouter.post(
   "/socialsignin/google",
-  validator.googleSignIn,
+  authValidator.googleSignIn,
   asyncHandler(helper.verify),
   asyncHandler(auth.validateGoogleAccessToken),
   asyncHandler(auth.googleLogin),
@@ -75,6 +75,15 @@ moduleRouter.post(
   asyncHandler(helper.verify),
   asyncHandler(auth.passportLocal),
   asyncHandler(auth.changePassword)
+);
+
+
+moduleRouter.post(
+  "/setPassword",
+  authValidator.changePassword,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.passportLocal),
+  asyncHandler(auth.setPassword)
 );
 
 // moduleRouter.post(

@@ -24,6 +24,8 @@ const refreshTokenLength = process.env.REFRESH_TOKEN_LENGTH
   ? process.env.REFRESH_TOKEN_LENGTH
   : 122;
 
+const appleStringList = ["mac", "os x", "iOS"];
+
 const authenticate = (type, error) =>
   async function auth(req, res, next) {
     if (req.user) return next();
@@ -203,8 +205,8 @@ exports.token = async (req, res) => {
 };
 
 exports.generateSession = async (req, res, next) => {
-  // if (req.useragent.isBot != false)
-  //   throw new CustomError("Invalid request.", 401);
+  if (req.useragent.isBot != false && process.env.NODE_ENV == "production")
+    throw new CustomError("Invalid request.", 401);
 
   let sessionData = { userId: req.user.id };
   sessionData.isClientApp = req.eoAgent ? true : false;
@@ -238,12 +240,31 @@ exports.generateSession = async (req, res, next) => {
   if (!req.eoAgent) {
     sessionData.deviceModel = req.useragent.platform;
     sessionData.deviceOS = req.useragent.os;
-    sessionData.deviceManufacture = "unknown";
+    sessionData.deviceManufacture = appleStringList.some((el) =>
+      req.useragent.os.includes(el)
+    )
+      ? "Apple"
+      : "Unknown";
     sessionData.clientPlatform = req.useragent.browser;
     sessionData.clientVersion = req.useragent.version;
-    sessionData.lastRefreshAt = new Date().getTime();
-    sessionData.refreshToken = customAlphabet(alphabet, refreshTokenLength)();
+  } else {
+    try {
+      var eoAgent = JSON.parse(req.eoAgent);
+      sessionData.deviceModel = eoAgent.model;
+      sessionData.deviceOS = eoAgent.platform;
+      sessionData.clientPlatform = "App";
+      sessionData.deviceManufacture = eoAgent.manufacture;
+      sessionData.clientVersion = eoAgent.eo_version_code;
+    } catch (e) {
+      sessionData.deviceModel = "Unknown";
+      sessionData.deviceOS = "Unknown";
+      sessionData.deviceManufacture = "Unknown";
+      sessionData.clientVersion = "Unknown";
+    }
   }
+
+  sessionData.lastRefreshAt = new Date().getTime();
+  sessionData.refreshToken = customAlphabet(alphabet, refreshTokenLength)();
 
   const session = await UserSession.create(sessionData);
 
@@ -310,7 +331,7 @@ exports.verify = async (req, res, next) => {
   throw new CustomError("Verification token expired.", 401);
 };
 
-exports.changePassword = async (req, res, next) => {
+exports.changePassword = async (req, res) => {
   const salt = await bcrypt.genSalt(12);
   const updatedPassword = await bcrypt.hash(req.body.newPassword, salt);
 
@@ -328,4 +349,25 @@ exports.changePassword = async (req, res, next) => {
   return res
     .status(200)
     .send({ status: "success", message: "Password Updated" });
+};
+
+exports.setPassword = async (req, res) => {
+  if (!_.isEmpty(req.user.password))
+    throw new CustomError("Invalid Request.", 401);
+
+  const salt = await bcrypt.genSalt(12);
+  const password = await bcrypt.hash(req.body.password, salt);
+
+  const user = await Users.update(
+    { password },
+    {
+      where: {
+        email: req.user.email,
+      },
+    }
+  );
+
+  if (!user) throw new CustomError("Invalid Request.", 401);
+
+  return res.send({ status: "success", message: "Password Updated" });
 };
