@@ -280,17 +280,22 @@ exports.signAuthToken = async (req, res) => {
 
   const tokenData = {
     status: "success",
-    sessionToken: req.session.refreshToken,
     authToken,
   };
 
+  // If it is a new session, pass the session token
+  if (req.session) {
+    tokenData.sessionToken = req.session.refreshToken;
+  }
+
+  // If it is a new account, pass the newAccount parameter
   if (req.user.newAccount) {
     tokenData.newAccount = true;
   }
   return res.status(200).send(tokenData);
 };
 
-exports.refreshAuthToken = async (req, res) => {
+exports.refreshAuthToken = async (req, res, next) => {
   const session = await UserSession.findOne({
     where: {
       refreshToken: req.body.refreshToken,
@@ -304,7 +309,8 @@ exports.refreshAuthToken = async (req, res) => {
     raw: true,
   });
 
-  res.send(session, user);
+  req.user = user;
+  return next();
 };
 
 exports.verify = async (req, res, next) => {

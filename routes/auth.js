@@ -39,7 +39,8 @@ moduleRouter.post(
   "/refreshToken",
   authValidator.refreshToken,
   asyncHandler(helper.verify),
-  asyncHandler(auth.refreshAuthToken)
+  asyncHandler(auth.refreshAuthToken),
+  asyncHandler(auth.signAuthToken)
 );
 
 moduleRouter.post(
