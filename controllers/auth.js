@@ -169,14 +169,16 @@ exports.validateUser = async (req, res, next) => {
       console.log("updatedUser", newUser);
       req.user = newUser[0];
       return next();
+    } else {
+      // user exists and profile connected with google
+      req.user = newUser[0];
     }
   } else {
+    // new user account creted
+    req.user = newUser[0];
     req.user.newAccount = true;
   }
 
-  // new user account creted or google account already
-  // connected to the profile
-  req.user = newUser[0];
   return next();
 };
 
