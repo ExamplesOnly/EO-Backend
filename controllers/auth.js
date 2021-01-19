@@ -37,7 +37,8 @@ const authenticate = (type, error) =>
         throw new CustomError(error, 401);
       }
 
-      if (!user.emailVerified) {
+      console.log(req.originalUrl);
+      if (!user.emailVerified && !req.originalUrl.includes("/me")) {
         throw new CustomError(
           "Your email address is not verified. " +
             "Click on signup to get the verification link again.",
@@ -255,16 +256,10 @@ exports.generateSession = async (req, res, next) => {
     .split(",")[0]
     .trim();
 
-  if (
-    userIp &&
-    userIp.match("\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(.|$)){4}\b")
-  ) {
-    sessionData.clientIP = userIp;
-  }
-
   // Get user geo locatio from IP
   const geoLocation = geoip.lookup(userIp);
   if (geoLocation) {
+    sessionData.clientIP = userIp;
     sessionData.clientCity = geoLocation.city;
     sessionData.clientRegion = geoLocation.region;
     sessionData.clientCountry = geoLocation.country;
