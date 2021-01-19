@@ -127,7 +127,7 @@ exports.sessionsignup = async (req, res, next) => {
   req.user = user[0];
   req.user.newAccount = true;
 
-  await mail.verification(req.body.email);
+  await mail.awsverification(req.body.email);
   next();
 };
 
