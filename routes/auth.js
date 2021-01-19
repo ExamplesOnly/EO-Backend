@@ -50,12 +50,14 @@ moduleRouter.post(
   asyncHandler(auth.signup)
 );
 
-// moduleRouter.post(
-//   "/sessionsignup",
-//   validator.signup,
-//   asyncHandler(helper.verify),
-//   asyncHandler(auth.signup)
-// );
+moduleRouter.post(
+  "/sessionsignup",
+  authValidator.signup,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.sessionsignup),
+  asyncHandler(auth.generateSession),
+  asyncHandler(auth.signAuthToken)
+);
 
 moduleRouter.post(
   "/socialsignin/google",
@@ -78,7 +80,6 @@ moduleRouter.post(
   asyncHandler(auth.changePassword)
 );
 
-
 moduleRouter.post(
   "/setPassword",
   authValidator.changePassword,
@@ -86,7 +87,6 @@ moduleRouter.post(
   asyncHandler(auth.passportLocal),
   asyncHandler(auth.setPassword)
 );
-
 
 moduleRouter.post(
   "/logout",

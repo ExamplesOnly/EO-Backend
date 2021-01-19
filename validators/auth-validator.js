@@ -1,5 +1,7 @@
 let { body, param, check } = require("express-validator");
-const User = require("../models").User;
+const Users = require("../models").User;
+const Category = require("../models").Category;
+const ExampleDemand = require("../models").ExampleDemand;
 
 exports.login = [
   body("password", "Password is not valid.")
@@ -40,7 +42,7 @@ exports.signup = [
         req.user = user;
       }
 
-      if (user && user.emailVerified) return Promise.reject();
+      if (user) return Promise.reject();
     })
     .withMessage("This email address is already in use."),
   body("password", "Password is not valid.")

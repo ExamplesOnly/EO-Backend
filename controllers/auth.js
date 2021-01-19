@@ -98,6 +98,39 @@ exports.signup = async (req, res) => {
   });
 };
 
+exports.sessionsignup = async (req, res, next) => {
+  const salt = await bcrypt.genSalt(12);
+  const password = await bcrypt.hash(req.body.password, salt);
+
+  const user = await Users.findOrCreate({
+    where: {
+      email: req.body.email,
+    },
+    defaults: {
+      uuid: nanoid(
+        process.env.ACCOUNT_UUID_LENGTH
+          ? parseInt(process.env.ACCOUNT_UUID_LENGTH)
+          : 10
+      ),
+      email: req.body.email,
+      firstName: req.body.firstName,
+      middleName: req.body.middleName,
+      lastName: req.body.lastName,
+      gender: req.body.gender,
+      password,
+    },
+  });
+
+  if (!user)
+    throw new CustomError("Could not login. Something went wrong.", 401);
+
+  req.user = user[0];
+  req.user.newAccount = true;
+
+  await mail.verification(req.body.email);
+  next();
+};
+
 exports.validateGoogleAccessToken = async (req, res, next) => {
   // Check if access token is present in the request
   if (req.body.accessToken) {
