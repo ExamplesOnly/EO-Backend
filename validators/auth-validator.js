@@ -78,3 +78,24 @@ exports.changePassword = [
     .isLength({ min: 8, max: 64 })
     .withMessage("Password length must be between 8 and 64."),
 ];
+
+exports.forgotPassword = [
+  body("email", "Email is not valid.")
+    .exists({ checkFalsy: true, checkNull: true })
+    .trim()
+    .isEmail()
+    .isLength({ min: 0, max: 255 })
+    .withMessage("Email is not valid."),
+];
+
+exports.resetPassword = [
+  body("password", "Password is invalid.")
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage("Password is invalid.")
+    .isLength({ min: 8, max: 64 })
+    .withMessage("Password length must be between 8 and 64."),
+  body("token", "Token is not valid.")
+    .exists({ checkFalsy: true, checkNull: true })
+    .isLength({ min: 0, max: 255 })
+    .withMessage("Token is not valid."),
+];

@@ -95,13 +95,19 @@ moduleRouter.post(
   asyncHandler(auth.clearSession)
 );
 
-// moduleRouter.post(
-//   "/forgotPassword",
-//   authValidator.changePassword,
-//   asyncHandler(helper.verify),
-//   asyncHandler(auth.passportLocal),
-//   asyncHandler(auth.changePassword)
-// );
+moduleRouter.post(
+  "/forgotPassword",
+  authValidator.forgotPassword,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.forgotPassword)
+);
+
+moduleRouter.post(
+  "/resetPassword",
+  authValidator.resetPassword,
+  asyncHandler(helper.verify),
+  asyncHandler(auth.resetPassword)
+);
 
 module.exports = {
   moduleRouter,

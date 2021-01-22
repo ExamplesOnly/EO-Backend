@@ -22,9 +22,26 @@ const verifyEmailTemplatePath = path.join(
   "verify_account.html"
 );
 
+const resetPassEmailTemplatePath = path.join(
+  __dirname,
+  "..",
+  "static",
+  "reset_password.html"
+);
+
 const verifyEmailTemplate = fs.readFileSync(verifyEmailTemplatePath, {
   encoding: "utf-8",
 });
+const resetPassEmailTemplate = fs.readFileSync(resetPassEmailTemplatePath, {
+  encoding: "utf-8",
+});
+
+const MAIL_VERIFICATION_EXPIRY = process.env.MAIL_VERIFICATION_EXPIRY_HR
+  ? process.env.MAIL_VERIFICATION_EXPIRY_HR
+  : 48;
+const MAIL_RESET_PASSWORD_EXPIRY = process.env.MAIL_RESET_PASSWORD_EXPIRY_HR
+  ? process.env.MAIL_RESET_PASSWORD_EXPIRY_HR
+  : 2;
 
 const mailConfig = {
   host: process.env.MAIL_HOST,
@@ -39,46 +56,6 @@ const mailConfig = {
 };
 
 const transporter = nodemailer.createTransport(mailConfig);
-
-exports.verification = async (email) => {
-  const token = uuidv4();
-  const user = await Users.update(
-    {
-      emailVerified: false,
-      verification_token: token,
-      verification_expires: addHours(new Date(), 48).toISOString(),
-    },
-    {
-      where: {
-        email,
-      },
-    }
-  );
-
-  const dynamicLink = await generateDynamicLink(
-    `${process.env.MAIL_VERIFY_URL}${token}`
-  );
-
-  const confirmLink = await dynamicLink.json();
-
-  const mail = await transporter.sendMail({
-    from: process.env.MAIL_FROM_NO_REPLY || process.env.MAIL_USER,
-    to: email,
-    subject: "Verify your account",
-    text: `Thank you for choosing ExamplesOnly. Please verify your e-mail to finish signing up for ExamplesOnly.
-
-    Please visit the link below to verify your email address.
-    
-    ${confirmLink.shortLink}`,
-    html: verifyEmailTemplate
-      .replace(/{{email}}/gm, email)
-      .replace(/{{verification_url}}/gm, confirmLink.shortLink),
-  });
-
-  if (!mail.accepted.length) {
-    throw new CustomError("Couldn't send verification email. Try again later.");
-  }
-};
 
 exports.awsverification = async (email) => {
   const token = uuidv4();
@@ -112,7 +89,8 @@ exports.awsverification = async (email) => {
           Charset: "UTF-8",
           Data: verifyEmailTemplate
             .replace(/{{email}}/gm, email)
-            .replace(/{{verification_url}}/gm, confirmLink.shortLink),
+            .replace(/{{verification_url}}/gm, confirmLink.shortLink)
+            .replace(/{{time_limit}}/gm, MAIL_VERIFICATION_EXPIRY),
         },
         Text: {
           Charset: "UTF-8",
@@ -125,7 +103,54 @@ exports.awsverification = async (email) => {
       },
       Subject: {
         Charset: "UTF-8",
-        Data: "Verify your account",
+        Data: "Verify your account - ExamplesOnly",
+      },
+    },
+    Source: `${process.env.MAIL_FROM_NO_REPLY || process.env.MAIL_USER}`,
+    ReplyToAddresses: [
+      `${process.env.MAIL_FROM_NO_REPLY || process.env.MAIL_USER}`,
+    ],
+  };
+
+  let mailSent = await SES.sendEmail(params, (err, data) => {}).promise();
+
+  console.log(mailSent);
+};
+
+exports.sendResetPasswordMail = async (user, token) => {
+  // generate verification link
+  const dynamicLink = await generateDynamicLink(
+    `${process.env.MAIL_RESET_PASS_URL}${token}`
+  );
+  const confirmLink = await dynamicLink.json();
+
+  // Mail sending parameters
+  var params = {
+    Destination: {
+      ToAddresses: [user.email],
+    },
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: resetPassEmailTemplate
+            .replace(/{{name}}/gm, user.firstName)
+            .replace(/{{email}}/gm, user.email)
+            .replace(/{{verification_url}}/gm, confirmLink.shortLink)
+            .replace(/{{time_limit}}/gm, MAIL_RESET_PASSWORD_EXPIRY),
+        },
+        Text: {
+          Charset: "UTF-8",
+          Data: `We've received a request to reset your password, if you didn't make the request, just ignore this mail. 
+          
+          Otherwise, please visit the link below to reset your password.
+    
+          ${confirmLink.shortLink}`,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: "Reset Password - ExamplesOnly",
       },
     },
     Source: `${process.env.MAIL_FROM_NO_REPLY || process.env.MAIL_USER}`,

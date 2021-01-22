@@ -126,6 +126,10 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.VideoReport, {
       foreignKey: "userId",
     });
+
+    User.hasMany(models.UserVerificationToken, {
+      foreignKey: "userId",
+    });
   };
   return User;
 };

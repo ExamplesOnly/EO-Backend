@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const Op = require("sequelize").Op;
 const geoip = require("geoip-lite");
 const passport = require("passport");
+const { v4: uuidv4 } = require("uuid");
+const { addHours } = require("date-fns");
 const { nanoid, customAlphabet } = require("nanoid");
 const { OAuth2Client } = require("google-auth-library");
 const {
@@ -15,6 +17,7 @@ const { signToken, tempToken, CustomError } = require("../utils");
 
 const Users = require("../models").User;
 const UserSession = require("../models").UserSession;
+const UserVerificationToken = require("../models").UserVerificationToken;
 
 const alphabet =
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -23,6 +26,13 @@ const client = new OAuth2Client(process.env.GOOGLE_SERVER_CLIENT_ID);
 const refreshTokenLength = process.env.REFRESH_TOKEN_LENGTH
   ? process.env.REFRESH_TOKEN_LENGTH
   : 122;
+
+const MAIL_VERIFICATION_EXPIRY = process.env.MAIL_VERIFICATION_EXPIRY_HR
+  ? process.env.MAIL_VERIFICATION_EXPIRY_HR
+  : 48;
+const MAIL_RESET_PASSWORD_EXPIRY = process.env.MAIL_RESET_PASSWORD_EXPIRY_HR
+  ? process.env.MAIL_RESET_PASSWORD_EXPIRY_HR
+  : 2;
 
 const appleStringList = ["mac", "os x", "iOS"];
 
@@ -90,7 +100,7 @@ exports.signup = async (req, res) => {
   if (!user)
     throw new CustomError("Could not login. Please contact support.", 401);
 
-  await mail.verification(req.body.email);
+  await mail.awsverification(req.body.email);
 
   return res.status(201).send({
     status: "success",
@@ -412,6 +422,64 @@ exports.setPassword = async (req, res) => {
   if (!user) throw new CustomError("Invalid Request.", 401);
 
   return res.send({ status: "success", message: "Password Updated" });
+};
+
+exports.forgotPassword = async (req, res) => {
+  const user = await Users.findOne({
+    where: {
+      email: req.body.email,
+    },
+    raw: true,
+  });
+
+  // email id doesn't exists on our server
+  if (!user) return res.send({ status: "success" });
+
+  // generate and save token
+  const token = uuidv4();
+  const tokenData = await UserVerificationToken.create({
+    userId: user.id,
+    token,
+    expireAt: addHours(new Date(), MAIL_RESET_PASSWORD_EXPIRY).toISOString(),
+  });
+
+  // send mail
+  mail.sendResetPasswordMail(user, tokenData);
+
+  return res.send({ status: "success" });
+};
+
+exports.resetPassword = async (req, res) => {
+  // get the token details
+  const tokenData = await UserVerificationToken.findOne({
+    where: {
+      token: req.body.token,
+    },
+  });
+  if (!tokenData) throw new CustomError("Failed to update password");
+
+  // Token is expired
+  if (new Date() > tokenData.expireAt)
+    if (!tokenData) throw new CustomError("Failed to update password");
+
+  // if (new Date() > tokenData.)
+  // get parent user of the specific token
+  const user = await tokenData.getUser();
+  if (!user) throw new CustomError("Failed to update password");
+
+  // generate the password token
+  const salt = await bcrypt.genSalt(12);
+  const password = await bcrypt.hash(req.body.password, salt);
+
+  const updatedUser = await user.update({ password });
+  if (!updatedUser) throw new CustomError("Failed to update password");
+
+  // delete the token
+  await tokenData.destroy();
+
+  return res
+    .status(200)
+    .send({ status: "success", message: "Password Updated" });
 };
 
 exports.clearSession = async (req, res) => {
