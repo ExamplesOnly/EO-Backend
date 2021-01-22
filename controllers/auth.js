@@ -444,7 +444,7 @@ exports.forgotPassword = async (req, res) => {
   });
 
   // send mail
-  mail.sendResetPasswordMail(user, tokenData);
+  mail.sendResetPasswordMail(user, token);
 
   return res.send({ status: "success" });
 };
