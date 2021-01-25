@@ -119,10 +119,7 @@ exports.awsverification = async (email) => {
 
 exports.sendResetPasswordMail = async (user, token) => {
   // generate verification link
-  const dynamicLink = await generateDynamicLink(
-    `${process.env.MAIL_RESET_PASS_URL}${token}`
-  );
-  const confirmLink = await dynamicLink.json();
+  const confirmLink = `${process.env.MAIL_RESET_PASS_URL}${token}`;
 
   // Mail sending parameters
   var params = {
@@ -136,7 +133,7 @@ exports.sendResetPasswordMail = async (user, token) => {
           Data: resetPassEmailTemplate
             .replace(/{{name}}/gm, user.firstName)
             .replace(/{{email}}/gm, user.email)
-            .replace(/{{verification_url}}/gm, confirmLink.shortLink)
+            .replace(/{{verification_url}}/gm, confirmLink)
             .replace(/{{time_limit}}/gm, MAIL_RESET_PASSWORD_EXPIRY),
         },
         Text: {
@@ -145,7 +142,7 @@ exports.sendResetPasswordMail = async (user, token) => {
           
           Otherwise, please visit the link below to reset your password.
     
-          ${confirmLink.shortLink}`,
+          ${confirmLink}`,
         },
       },
       Subject: {
