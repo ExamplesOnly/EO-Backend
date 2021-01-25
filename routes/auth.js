@@ -82,9 +82,9 @@ moduleRouter.post(
 
 moduleRouter.post(
   "/setPassword",
-  authValidator.changePassword,
+  authValidator.setPassword,
   asyncHandler(helper.verify),
-  asyncHandler(auth.passportLocal),
+  asyncHandler(auth.passportJwt),
   asyncHandler(auth.setPassword)
 );
 

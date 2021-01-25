@@ -99,3 +99,11 @@ exports.resetPassword = [
     .isLength({ min: 0, max: 255 })
     .withMessage("Token is not valid."),
 ];
+
+exports.setPassword = [
+  body("password", "Password is invalid.")
+    .exists({ checkFalsy: true, checkNull: true })
+    .withMessage("Password is invalid.")
+    .isLength({ min: 8, max: 64 })
+    .withMessage("Password length must be between 8 and 64."),
+];
