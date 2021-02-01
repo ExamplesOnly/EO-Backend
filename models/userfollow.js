@@ -2,14 +2,21 @@
 const { nanoid } = require("nanoid");
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class UserVerificationToken extends Model {
+  class UserFollow extends Model {
     static associate(models) {
-      UserVerificationToken.belongsTo(models.User, {
-        foreignKey: "userId",
+      UserFollow.belongsTo(models.User, {
+        as: "follower",
+        foreignKey: "followerUuid",
+        targetKey: "uuid",
+      });
+      UserFollow.belongsTo(models.User, {
+        as: "following",
+        foreignKey: "followingUuid",
+        targetKey: "uuid",
       });
     }
   }
-  UserVerificationToken.init(
+  UserFollow.init(
     {
       uuid: {
         type: DataTypes.UUID,
@@ -19,20 +26,19 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         allowNull: false,
       },
-      userId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      token: {
+      followerUuid: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      expireAt: DataTypes.DATE,
+      followingUuid: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
       sequelize,
-      modelName: "UserVerificationToken",
+      modelName: "UserFollow",
     }
   );
-  return UserVerificationToken;
+  return UserFollow;
 };

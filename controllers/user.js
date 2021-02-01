@@ -4,6 +4,7 @@ const UserCategory = require("../models").UserCategory;
 const Category = require("../models").Category;
 const ExampleBookmark = require("../models").ExampleBookmark;
 const ExampleDemand = require("../models").ExampleDemand;
+const UserFollow = require("../models").UserFollow;
 const { sequelize } = require("../models");
 const { CustomError } = require("../utils");
 const { s3 } = require("../config/media");
@@ -276,7 +277,7 @@ exports.getInterest = async (req, res) => {
 exports.getUserProfile = async (req, res) => {
   if (!req.params.uuid) throw new CustomError("User uuid is required", 400);
 
-  const user = await User.findOne({
+  let userData = await User.findOne({
     where: { uuid: req.params.uuid },
     attributes: [
       "id",
@@ -294,6 +295,18 @@ exports.getUserProfile = async (req, res) => {
       "coverImageKey",
       "emailVerified",
       "blocked",
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM UserFollows WHERE (followerUuid = "${req.user.uuid}" AND followingUuid = "${req.params.uuid}"))`
+        ),
+        "isFollowing",
+      ],
+      [
+        sequelize.literal(
+          `(SELECT COUNT(*) FROM UserFollows WHERE (followerUuid = "${req.params.uuid}" AND followingUuid = "${req.user.uuid}"))`
+        ),
+        "isFollowedBy",
+      ],
     ],
     include: [
       {
@@ -303,15 +316,21 @@ exports.getUserProfile = async (req, res) => {
     ],
   });
 
-  if (!user) throw new CustomError("User account not found", 404);
+  if (!userData) throw new CustomError("User account not found", 404);
 
-  const userData = JSON.parse(JSON.stringify(user));
-  if (userData.emailVerified == 0) {
-    userData.emailVerified = false;
-  } else if (userData.emailVerified == 1) {
-    userData.emailVerified = true;
-  }
+  // const userData = JSON.parse(JSON.stringify(user));
 
+  // get json data from sequelize object
+  userData = userData.get({ plain: true });
+
+  // generalize user data
+  userData = Object.assign({}, userData, {
+    emailVerified: userData.emailVerified == 1,
+    isFollowing: userData.isFollowing == 1,
+    isFollowedBy: userData.isFollowedBy == 1,
+  });
+
+  // get user videos
   let userVideos = await Video.findAll({
     where: {
       userId: userData.id,
@@ -360,10 +379,12 @@ exports.getUserProfile = async (req, res) => {
   });
 
   // parse video data to an json object
-  userVideos = JSON.parse(JSON.stringify(userVideos));
+  // userVideos = userVideos.get({ plain: true });
 
   // remove unnecessary ExampleDemand data
-  userVideos.map(function (vid) {
+  userVideos = userVideos.map(function (vid) {
+    vid = vid.get({ plain: true });
+
     if (!vid.ExampleDemand || !vid.ExampleDemand.uuid) {
       vid.ExampleDemand = null;
     } else {
@@ -382,24 +403,6 @@ exports.getUserProfile = async (req, res) => {
 };
 
 exports.getVideoBookmarks = async (req, res) => {
-  // const user = await User.findOne({
-  //   where: { id: req.user.id },
-  //   attributes: ["firstName"],
-  //   include: [
-  //     {
-  //       model: Video,
-  //       attributes: ["videoId", "title"],
-  //       through: [
-  //         {
-  //           as: "VideoBookmark",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // });
-
-  //Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id) AS bow, (SELECT COUNT(*) FROM VideoViews WHERE videoId=Videos.id) AS view, (SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id AND userId=1)  AS userBowed, Videos.fileKey, Videos.thumbKey, Videos.createdAt
-
   const [results, metadata] = await sequelize.query(
     `SELECT Videos.videoId, Videos.size, Videos.duration, Videos.height, Videos.width, Videos.title, Videos.description, ` +
       `(SELECT COUNT(*) FROM VideoBows WHERE videoId=Videos.id) AS bow, ` +
@@ -422,6 +425,122 @@ exports.getVideoBookmarks = async (req, res) => {
   });
 
   res.status(200).send(results);
+};
+
+exports.followUser = async (req, res) => {
+  var follow = await UserFollow.findOrCreate({
+    where: {
+      followerUuid: req.user.uuid,
+      followingUuid: req.followUser.uuid,
+    },
+  });
+
+  return res.status(200).send({ status: true, data: true });
+};
+
+exports.unfollowUser = async (req, res) => {
+  var follow = await UserFollow.findOne({
+    where: {
+      followerUuid: req.user.uuid,
+      followingUuid: req.followUser.uuid,
+    },
+  });
+
+  // unfollow if already following
+  if (follow) {
+    await follow.destroy();
+  }
+
+  return res.status(200).send({ status: true, data: true });
+};
+
+exports.getFollowings = async (req, res) => {
+  if (!req.params.uuid) throw new CustomError("Invalid Request", 400);
+
+  let userData = await UserFollow.findAll({
+    where: {
+      followerUuid: req.params.uuid,
+    },
+    limit: req.limit,
+    offset: req.offset,
+    include: {
+      model: User,
+      as: "following",
+      attributes: [
+        "uuid",
+        "email",
+        "firstName",
+        "profileImage",
+        "profileImageKey",
+        "blocked",
+      ],
+    },
+  });
+
+  if (!userData) throw new CustomError("Invalid Request", 400);
+
+  // user doesn't have any followers
+  if (userData.length == 0) {
+    return res.send([]);
+  }
+
+  // get json data from sequelize object
+  userData = userData.map((u) => {
+    return u.get({ plain: true });
+  });
+
+  // generalize user follower data
+  userData = userData.map((u) => {
+    delete u.following.profileImageKey;
+    return u.following;
+  });
+
+  return res.send(userData);
+};
+
+exports.getFollowers = async (req, res) => {
+  if (!req.params.uuid) throw new CustomError("Invalid Request", 400);
+
+  // get who is following this user
+  let userData = await UserFollow.findAll({
+    where: {
+      followingUuid: req.params.uuid,
+    },
+    limit: req.limit,
+    offset: req.offset,
+    include: {
+      model: User,
+      as: "follower",
+      attributes: [
+        "uuid",
+        "email",
+        "firstName",
+        "profileImage",
+        "profileImageKey",
+        "blocked",
+      ],
+    },
+  });
+
+  if (!userData) throw new CustomError("Invalid Request", 400);
+
+  // user doesn't have any followers
+  if (userData.length == 0) {
+    return res.send([]);
+  }
+
+  // get json data from sequelize object
+  userData = userData.map((u) => {
+    return u.get({ plain: true });
+  });
+
+  // generalize user follower data
+  userData = userData.map((u) => {
+    delete u.following.profileImageKey;
+    return u.following;
+  });
+
+  return res.send(userData);
 };
 
 async function deleteFileS3(file) {

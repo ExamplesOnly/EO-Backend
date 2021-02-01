@@ -252,7 +252,7 @@ exports.token = async (req, res) => {
 
 exports.generateSession = async (req, res, next) => {
   if (req.useragent.isBot != false && process.env.NODE_ENV == "production")
-    throw new CustomError("Invalid request.", 401);
+    throw new CustomError("Invalid request.", 403);
 
   let sessionData = { userId: req.user.id };
   sessionData.isClientApp = req.eoAgent ? true : false;
@@ -309,7 +309,7 @@ exports.generateSession = async (req, res, next) => {
   const session = await UserSession.create(sessionData);
 
   if (!session)
-    throw new CustomError("Could not login. Please contact support.", 401);
+    throw new CustomError("Could not login. Please contact support.", 500);
 
   req.session = session;
   return next();
@@ -419,7 +419,7 @@ exports.setPassword = async (req, res) => {
     }
   );
 
-  if (!user) throw new CustomError("Invalid Request.", 401);
+  if (!user) throw new CustomError("Invalid Request.", 500);
 
   return res.send({ status: "success", message: "Password Updated" });
 };

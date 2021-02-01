@@ -11,6 +11,36 @@ exports.verify = (req, res, next) => {
   return next();
 };
 
+exports.pagination = (req, res, next) => {
+  let bodyLimit = parseInt(req.body.limit);
+  let queryLimit = parseInt(req.query.limit);
+
+  let bodyOffset = parseInt(req.body.offset);
+  let queryOffset = parseInt(req.query.offset);
+
+  let limit =
+    bodyLimit && Number.isInteger(bodyLimit)
+      ? bodyLimit > process.env.DATA_PAGINATION_LIMIT
+        ? process.env.DATA_PAGINATION_LIMIT
+        : bodyLimit
+      : queryLimit && Number.isInteger(queryLimit)
+      ? queryLimit > process.env.DATA_PAGINATION_LIMIT
+        ? process.env.DATA_PAGINATION_LIMIT
+        : queryLimit
+      : process.env.DATA_PAGINATION_LIMIT;
+  let offset =
+    bodyOffset && Number.isInteger(bodyOffset)
+      ? bodyOffset
+      : queryOffset && Number.isInteger(queryOffset)
+      ? queryOffset
+      : 0;
+
+  req.limit = limit;
+  req.offset = offset;
+
+  next();
+};
+
 exports.error = (error, req, res, next) => {
   // if (env.isDev) {
   //   signale.fatal(error);

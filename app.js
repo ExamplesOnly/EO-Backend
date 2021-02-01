@@ -4,6 +4,7 @@ const express = require("express");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const cors = require("cors");
+const compression = require("compression");
 const bodyParser = require("body-parser");
 const useragent = require("express-useragent");
 const db = require("./models");
@@ -24,6 +25,7 @@ app.use(express.json());
 app.set("trust proxy", true);
 app.use(useragent.express());
 app.use(EoMobileuserAgent);
+app.use(compression());
 
 // parse application/json
 app.use(bodyParser.json());

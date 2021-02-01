@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler");
 const auth = require("../controllers/auth");
 const user = require("../controllers/user");
 const validator = require("../controllers/validator");
+const userValidator = require("../validators/user-validator");
 const helper = require("../controllers/helper");
 const { uploads3 } = require("../config/media");
 
@@ -74,10 +75,41 @@ moduleRouter.get(
   asyncHandler(auth.passportJwt),
   asyncHandler(user.getUserProfile)
 );
+
 moduleRouter.get(
   "/myVideoBookmarks",
   asyncHandler(auth.passportJwt),
   asyncHandler(user.getVideoBookmarks)
+);
+
+moduleRouter.post(
+  "/follow",
+  asyncHandler(auth.passportJwt),
+  userValidator.follow,
+  asyncHandler(helper.verify),
+  asyncHandler(user.followUser)
+);
+
+moduleRouter.post(
+  "/unfollow",
+  asyncHandler(auth.passportJwt),
+  userValidator.follow,
+  asyncHandler(helper.verify),
+  asyncHandler(user.unfollowUser)
+);
+
+moduleRouter.get(
+  "/followers/:uuid",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(helper.pagination),
+  asyncHandler(user.getFollowers)
+);
+
+moduleRouter.get(
+  "/followings/:uuid",
+  asyncHandler(auth.passportJwt),
+  asyncHandler(helper.pagination),
+  asyncHandler(user.getFollowings)
 );
 
 module.exports = {
