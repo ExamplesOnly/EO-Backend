@@ -536,8 +536,8 @@ exports.getFollowers = async (req, res) => {
 
   // generalize user follower data
   userData = userData.map((u) => {
-    delete u.following.profileImageKey;
-    return u.following;
+    delete u.follower.profileImageKey;
+    return u.follower;
   });
 
   return res.send(userData);
