@@ -10,8 +10,8 @@ const videoController = require("../../controllers/graphql/video");
 
 exports.typeDef = `
   extend type Query {
-    getVideo(videoId: String): Video
-    getFeed(limit: Int, offset: Int): [Video!]
+    Video(videoId: String): Video
+    Feed(limit: Int, offset: Int): [Video!]
     getCategoryVideo(categories: String!, limit: Int, offset: Int): [Video!]
   }
 
@@ -35,8 +35,7 @@ exports.typeDef = `
 
 exports.resolvers = {
   Query: {
-    async getVideo(parent, args, context, info) {
-      console.log("getVideo", context);
+    async Video(parent, args, context, info) {
       let video = await Video.findOne({
         where: { videoId: args.videoId },
         attributes: {
@@ -76,7 +75,7 @@ exports.resolvers = {
         view: video.videoMeta.view,
       });
     },
-    async getFeed(parent, args, context, info) {
+    async Feed(parent, args, context, info) {
       let videoList = await videoController.getFeedList(
         args.limit,
         args.offset
