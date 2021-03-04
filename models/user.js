@@ -34,8 +34,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       countryCode: DataTypes.STRING,
+      profileImageKey: DataTypes.STRING,
+      coverImageKey: DataTypes.STRING,
       profileImage: {
-        type: DataTypes.VIRTUAL,
+        type: DataTypes.VIRTUAL(DataTypes.STRING, ["profileImageKey"]),
         get() {
           return this.profileImageKey
             ? `https://${cdnHost}/${this.profileImageKey}`
@@ -43,16 +45,13 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       coverImage: {
-        type: DataTypes.VIRTUAL,
+        type: DataTypes.VIRTUAL(DataTypes.STRING, ["coverImageKey"]),
         get() {
           return this.coverImageKey
             ? `https://${cdnHost}/${this.coverImageKey}`
             : null;
         },
       },
-
-      profileImageKey: DataTypes.STRING,
-      coverImageKey: DataTypes.STRING,
       emailVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

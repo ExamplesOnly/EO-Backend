@@ -47,7 +47,6 @@ const authenticate = (type, error) =>
         throw new CustomError(error, 401);
       }
 
-      console.log(req.originalUrl);
       if (!user.emailVerified && !req.originalUrl.includes("/me")) {
         throw new CustomError(
           "Your email address is not verified. " +

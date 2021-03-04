@@ -9,14 +9,19 @@ const bodyParser = require("body-parser");
 const useragent = require("express-useragent");
 const db = require("./models");
 const helpers = require("./controllers/helper");
-
+const { ApolloServer, gql } = require("apollo-server-express");
 require("./config/passport");
 
 const middlewares = require("./middleware");
 const { EoMobileuserAgent } = require("./middleware/useragent");
 const api = require("./routes");
+const graphqlPath = "/graphql";
 
 const app = express();
+
+// setup graphql
+const apollo = require("./graphql");
+apollo.applyMiddleware({ app, graphqlPath });
 
 app.use(morgan("dev"));
 app.use(helmet());
