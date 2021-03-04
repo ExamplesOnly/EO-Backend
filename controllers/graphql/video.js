@@ -60,7 +60,10 @@ exports.getFeedList = async (limit = 20, offset = 0) => {
       offset: offset,
     });
 
+    console.log("getFeedList 1", videoList);
+
     let videoFeed = videoList.map((v) => {
+    console.log("getFeedList 2", v, v.videoMeta, v.videoMeta.bow);
       return this.transformVideo({
         ...v.dataValues,
         url: v.url,
