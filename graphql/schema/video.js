@@ -29,7 +29,7 @@ exports.typeDef = `
     view: Int
     userBowed: Boolean
     userBookmarked: Boolean
-    publisher: User
+    publisher: User!
   }
 `;
 

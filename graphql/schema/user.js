@@ -11,8 +11,7 @@ exports.typeDef = `
     uuid: String!
     userId: String
     email: String!
-    first: String
-    firstName: String
+    firstName: String!
     middleName: String
     lastName: String
     password: String
@@ -23,7 +22,7 @@ exports.typeDef = `
     countryCode: String
     profileImage: String
     coverImage: String
-    emailVerified: Boolean
+    emailVerified: Boolean!
     blocked: Boolean
     googleId: Boolean
   }
