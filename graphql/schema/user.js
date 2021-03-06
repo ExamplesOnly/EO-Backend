@@ -14,7 +14,6 @@ exports.typeDef = `
     firstName: String!
     middleName: String
     lastName: String
-    password: String
     bio: String
     dob: String
     gender: String
