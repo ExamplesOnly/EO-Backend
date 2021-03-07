@@ -7,7 +7,6 @@ exports.typeDef = `
   }
 
   type User {
-    id: Int!
     uuid: String!
     userId: String
     email: String!
