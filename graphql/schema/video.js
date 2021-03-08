@@ -12,6 +12,7 @@ exports.typeDef = `
   extend type Query {
     Video(videoId: String): Video
     Feed(limit: Int, offset: Int): [Video!]
+    TrendingFeed(limit: Int, offset: Int): [Video!]
     getCategoryVideo(categories: String!, limit: Int, offset: Int): [Video!]
   }
 
@@ -77,6 +78,13 @@ exports.resolvers = {
     },
     async Feed(parent, args, context, info) {
       let videoList = await videoController.getFeedList(
+        args.limit,
+        args.offset
+      );
+      return videoList;
+    },
+    async TrendingFeed(parent, args, context, info) {
+      let videoList = await videoController.getTrendingList(
         args.limit,
         args.offset
       );

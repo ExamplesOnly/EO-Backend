@@ -3,6 +3,7 @@ const DataLoader = require("dataloader");
 const Video = require("../../models").Video;
 const VideoMeta = require("../../models").VideoMeta;
 const ExampleDemand = require("../../models").ExampleDemand;
+const VideoGlobalTrending = require("../../models").VideoGlobalTrending;
 
 const userController = require("./user");
 
@@ -60,10 +61,7 @@ exports.getFeedList = async (limit = 20, offset = 0) => {
       offset: offset,
     });
 
-    console.log("getFeedList 1", videoList);
-
     let videoFeed = videoList.map((v) => {
-    console.log("getFeedList 2", v, v.videoMeta, v.videoMeta.bow);
       return this.transformVideo({
         ...v.dataValues,
         url: v.url,
@@ -75,7 +73,46 @@ exports.getFeedList = async (limit = 20, offset = 0) => {
 
     return videoFeed ? videoFeed : null;
   } catch (err) {
-    throw err;
+    return [];
+  }
+};
+
+exports.getTrendingList = async (limit = 20, offset = 0) => {
+  console.log("getTrendingList STRT");
+  try {
+    let videoList = await VideoGlobalTrending.findAll({
+      include: [
+        {
+          model: Video,
+          include: [
+            {
+              model: ExampleDemand,
+            },
+            {
+              model: VideoMeta,
+              as: "videoMeta",
+            },
+          ],
+        },
+      ],
+      order: [["trendingRank", "ASC"]],
+      limit: limit,
+      offset: offset,
+    });
+
+    let videoFeed = videoList.map((v) => {
+      return this.transformVideo({
+        ...v.Video.dataValues,
+        url: v.Video.url,
+        thumbUrl: v.Video.thumbUrl,
+        bow: v.Video.videoMeta.bow,
+        view: v.Video.videoMeta.view,
+      });
+    });
+
+    return videoFeed ? videoFeed : null;
+  } catch (error) {
+    return [];
   }
 };
 
