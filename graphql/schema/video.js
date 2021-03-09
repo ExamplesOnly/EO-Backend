@@ -11,8 +11,8 @@ const videoController = require("../../controllers/graphql/video");
 exports.typeDef = `
   extend type Query {
     Video(videoId: String): Video
-    Feed(limit: Int, offset: Int): [Video!]
-    TrendingFeed(limit: Int, offset: Int): [Video!]
+    Feed(limit: Int, offset: Int): [Video!]!
+    TrendingFeed(limit: Int, offset: Int): [Video!]!
     getCategoryVideo(categories: String!, limit: Int, offset: Int): [Video!]
   }
 
