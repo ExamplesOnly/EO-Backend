@@ -62,8 +62,13 @@ exports.getFeedList = async (limit = 20, offset = 0) => {
     });
 
     let videoFeed = videoList.map((v) => {
+      let title = v.ExampleDemand ? v.ExampleDemand.title : v.title;
+      let isDemand = v.ExampleDemand ? true : false;
+
       return this.transformVideo({
         ...v.dataValues,
+        title,
+        isDemand,
         url: v.url,
         thumbUrl: v.thumbUrl,
         bow: v.videoMeta.bow,
@@ -101,8 +106,16 @@ exports.getTrendingList = async (limit = 20, offset = 0) => {
     });
 
     let videoFeed = videoList.map((v) => {
+      let title = v.Video.ExampleDemand
+        ? v.Video.ExampleDemand.title
+        : v.Video.title;
+
+      let isDemand = v.Video.ExampleDemand ? true : false;
+
       return this.transformVideo({
         ...v.Video.dataValues,
+        title,
+        isDemand,
         url: v.Video.url,
         thumbUrl: v.Video.thumbUrl,
         bow: v.Video.videoMeta.bow,
