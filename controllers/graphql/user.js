@@ -1,7 +1,7 @@
 const DataLoader = require("dataloader");
 
 const User = require("../../models").User;
-const { Sequelize } = require("../../models");
+const { Sequelize, sequelize } = require("../../models");
 
 const { VideoController } = require("./video");
 
@@ -12,6 +12,7 @@ exports.userLoader = new DataLoader((userids) => {
         [Sequelize.Op.in]: userids,
       },
     },
+    order: [[sequelize.fn("field", sequelize.col("id"), userids)]],
   });
   return user;
 });
