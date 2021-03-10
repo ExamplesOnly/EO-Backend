@@ -90,7 +90,6 @@ exports.getFeedList = async (limit = 20, offset = 0) => {
 };
 
 exports.getTrendingList = async (limit = 20, offset = 0) => {
-  console.log("getTrendingList STRT");
   try {
     let videoList = await VideoGlobalTrending.findAll({
       include: [

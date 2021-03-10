@@ -20,8 +20,6 @@ exports.userLoader = new DataLoader((userids) => {
 exports.getUserById = async (id) => {
   try {
     const user = await this.userLoader.load(id);
-
-    console.log("getUserById FirstName", user.firstName);
     return {
       ...user.dataValues,
       profileImage: user.profileImage,
