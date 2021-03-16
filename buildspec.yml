@@ -1,0 +1,13 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+  build:
+    commands:
+      - echo "Copy config file"
+      - aws s3 cp "s3://eo-prod-protected-media/protected_resource/examplesonly-firebase-adminsdk.json" "examplesonly-firebase-adminsdk.json"
+artifacts:
+  files:
+    - "**/*"
