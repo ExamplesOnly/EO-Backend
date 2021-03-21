@@ -1,11 +1,10 @@
 require("dotenv").config();
-
-const express = require("express");
+const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
-const cors = require("cors");
-const compression = require("compression");
+const express = require("express");
 const bodyParser = require("body-parser");
+const compression = require("compression");
 const useragent = require("express-useragent");
 const db = require("./models");
 const helpers = require("./controllers/helper");
@@ -22,6 +21,7 @@ const app = express();
 const apollo = require("./graphql");
 apollo.applyMiddleware({ app, graphqlPath });
 
+// security and parsers
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(cors());
