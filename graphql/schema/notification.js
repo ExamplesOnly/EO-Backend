@@ -6,6 +6,7 @@ exports.typeDef = `
   }
 
   type Notification {
+    uuid: String
     text: String
     type: String
     thumb: String!

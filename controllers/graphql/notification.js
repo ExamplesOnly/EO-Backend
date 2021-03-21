@@ -22,7 +22,6 @@ exports.getNotifications = async (limit = 20, offset = 0) => {
 };
 
 async function transformNotification(data) {
-  console.log("transformNotification", data);
   switch (data.type) {
     case "NotifyBow":
       // Get the associated video of the bow
@@ -36,6 +35,7 @@ async function transformNotification(data) {
         .replace(/{{name}}/gm, data.typeData.User.firstName)
         .replace(/{{video_title}}/gm, videoData.title);
       let finalPayload = {
+        uuid: data.uuid,
         text: notificationText,
         type: constants.NOTIFICATION_BOW,
         thumb: data.typeData.User.profileImage,
