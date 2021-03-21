@@ -366,7 +366,7 @@ exports.postPlayTime = async (req, res) => {
   });
 };
 
-exports.postBow = async (req, res) => {
+exports.postBow = async (req, res, next) => {
   const bow = await VideoBow.findOrCreate({
     where: {
       videoId: req.video.id,
@@ -384,7 +384,13 @@ exports.postBow = async (req, res) => {
     });
   }
 
-  return res.status(200).send({ status: bow[1] });
+  // Pass notification data to notification middleware
+  req.notificationData = { bow: bow[0].dataValues, isAdded: bow[1] };
+
+  // return notiication data
+  res.status(200).send({ status: bow[1] });
+
+  return next();
 };
 
 exports.bookmarkVideo = async (req, res) => {

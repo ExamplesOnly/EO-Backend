@@ -17,10 +17,15 @@ passport.use(
   new JwtStrategy(jwtOptions, async (payload, done) => {
     if (!payload.sub) return done(null, false);
     try {
-      const user = await Users.findOne({
+      let user = await Users.findOne({
         where: { email: payload.sub },
-        raw: true,
       });
+
+      user = {
+        ...user.dataValues,
+        profileImage: user.profileImage,
+        coverImage: user.coverImage,
+      };
 
       if (!user) return done(null, false);
       return done(null, user);

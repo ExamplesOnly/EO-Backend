@@ -5,6 +5,7 @@ const videoValidator = require("../validators/video-validator");
 const helper = require("../controllers/helper");
 const video = require("../controllers/video");
 const auth = require("../controllers/auth");
+const notification = require("../controllers/notification");
 
 const moduleRouter = express.Router();
 
@@ -79,7 +80,8 @@ moduleRouter.post(
   asyncHandler(auth.passportJwt),
   videoValidator.postViewBow,
   asyncHandler(helper.verify),
-  asyncHandler(video.postBow)
+  asyncHandler(video.postBow),
+  asyncHandler(notification.bowNotification)
 );
 
 moduleRouter.post(

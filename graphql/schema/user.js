@@ -3,7 +3,7 @@ const { ApolloError } = require("apollo-server");
 
 exports.typeDef = `
   extend type Query {
-    getUser(uuid: String): User
+    User(uuid: String): User
   }
 
   type User {
@@ -22,7 +22,7 @@ exports.typeDef = `
     coverImage: String
     emailVerified: Boolean!
     blocked: Boolean
-    googleId: Boolean
+    videos(limit: Int, offset: Int): [Video!]
   }
 
   input UserInput {
@@ -37,8 +37,7 @@ exports.typeDef = `
 
 exports.resolvers = {
   Query: {
-    async getUser(parent, args, context, info) {
-      console.log(parent, args, context, info);
+    async User(parent, args, context, info) {
       let user = await User.findOne({
         where: { uuid: args.uuid },
       });
@@ -48,7 +47,4 @@ exports.resolvers = {
       return user;
     },
   },
-  // User: {
-  //   firstName: () => {},
-  // },
 };

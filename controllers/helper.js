@@ -41,6 +41,10 @@ exports.pagination = (req, res, next) => {
   next();
 };
 
+exports.return = (req, res, next) => {
+  return;
+};
+
 exports.error = (error, req, res, next) => {
   // if (env.isDev) {
   //   signale.fatal(error);

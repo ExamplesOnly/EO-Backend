@@ -9,7 +9,6 @@ const bodyParser = require("body-parser");
 const useragent = require("express-useragent");
 const db = require("./models");
 const helpers = require("./controllers/helper");
-const { ApolloServer, gql } = require("apollo-server-express");
 require("./config/passport");
 
 const middlewares = require("./middleware");

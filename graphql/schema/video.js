@@ -80,14 +80,14 @@ exports.resolvers = {
     async Feed(parent, args, context, info) {
       let videoList = await videoController.getFeedList(
         args.limit,
-        args.offset
+        args.offset,
       );
       return videoList;
     },
     async TrendingFeed(parent, args, context, info) {
       let videoList = await videoController.getTrendingList(
         args.limit,
-        args.offset
+        args.offset,
       );
       return videoList;
     },

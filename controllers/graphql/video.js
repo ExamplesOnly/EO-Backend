@@ -7,8 +7,10 @@ const VideoGlobalTrending = require("../../models").VideoGlobalTrending;
 
 const userController = require("./user");
 
+const { ApolloError } = require("apollo-server");
+
 exports.videoLoader = new DataLoader((videoIds) => {
-  let videoList = Video.findOne({
+  let videoList = Video.findAll({
     where: {
       videoId: {
         [Op.in]: videoIds,
@@ -16,10 +18,14 @@ exports.videoLoader = new DataLoader((videoIds) => {
     },
     include: [
       {
+        model: ExampleDemand,
+      },
+      {
         model: VideoMeta,
         as: "videoMeta",
       },
     ],
+    order: [[sequelize.fn("field", sequelize.col("id"), userids)]],
   });
 
   let videoFeed = videoList.map((v) => {
@@ -38,13 +44,34 @@ exports.videoLoader = new DataLoader((videoIds) => {
 exports.getVideo = async (videoId) => {
   try {
     let video = await this.videoLoader.load(videoId);
-    return video ? video : null;
+
+    if (!video) throw new ApolloError("Video not found");
+
+    let title = v.ExampleDemand ? v.ExampleDemand.title : v.title;
+    let description = v.ExampleDemand
+      ? v.ExampleDemand.description
+      : v.description
+      ? v.description
+      : "";
+
+    let isDemand = v.ExampleDemand ? true : false;
+
+    return this.transformVideo({
+      ...video.dataValues,
+      title,
+      description,
+      isDemand,
+      url: video.url,
+      thumbUrl: video.thumbUrl,
+      bow: video.videoMeta.bow,
+      view: video.videoMeta.view,
+    });
   } catch (err) {
     throw err;
   }
 };
 
-exports.getFeedList = async (limit = 20, offset = 0) => {
+exports.getFeedList = async (limit = 20, offset = 0, fields) => {
   try {
     let videoList = await Video.findAll({
       include: [
