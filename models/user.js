@@ -126,6 +126,20 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "userId",
     });
 
+    User.hasMany(models.NotifyBow, {
+      foreignKey: "bowByUserId",
+    });
+
+    User.hasMany(models.Notification, {
+      foreignKey: "notificationForUserId",
+      as: "notificationForUser",
+    });
+
+    User.hasMany(models.Notification, {
+      foreignKey: "actionByUserId",
+      as: "actionByUser",
+    });
+
     User.hasMany(models.VideoReach, {
       foreignKey: "userId",
     });

@@ -3,12 +3,20 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class VideoBow extends Model {
     static associate(models) {
-      // define association here
       // VideoBow.hasMany(models.User);
+      // VideoBow.hasOne(models.NotifyBow, {
+      //   foreignKey: "bowId",
+      // });
     }
   }
   VideoBow.init(
     {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
       videoId: {
         type: DataTypes.INTEGER,
         allowNull: false,

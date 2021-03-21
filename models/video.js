@@ -93,6 +93,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "videoId",
     });
 
+    // Video.hasMany(models.NotifyBow, {
+    //   foreignKey: "videoId",
+    // });
+
     Video.hasMany(models.VideoReach, {
       foreignKey: "videoId",
     });
