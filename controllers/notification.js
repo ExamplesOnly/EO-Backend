@@ -2,6 +2,7 @@ const Notification = require("../models").Notification;
 const NotifyBow = require("../models").NotifyBow;
 const User = require("../models").User;
 const Video = require("../models").Video;
+const UserSession = require("../models").UserSession;
 const { sequelize } = require("../models");
 const firebaseAdmin = require("../config/firebase");
 const notificationTemplate = require("../static/notification");
@@ -85,7 +86,24 @@ exports.bowNotification = async (req, res, next) => {
 
       // build the notification payload to attach additional data required for UI
       let finalPayload = buildNotification(constants.NOTIFICATION_BOW, payload);
-      if (finalPayload) pushNotification(finalPayload, null);
+      if (finalPayload) {
+        var userSessions = await UserSession.findAll({
+          where: {
+            userId: req.user.id,
+          },
+        });
+
+        console.log("userSessions", userSessions, req.user.id);
+
+        var tokens = [];
+        userSessions.forEach((s) => {
+          if (typeof s.fcmToken === "string" || s.fcmToken instanceof String) {
+            tokens.push(s.fcmToken);
+          }
+        });
+        console.log("tokens", tokens);
+        pushNotification(finalPayload, tokens);
+      }
     }
     return;
   } catch (error) {
@@ -117,13 +135,12 @@ function buildNotification(type, payload) {
 function pushNotification(data, tokens) {
   var message = {
     data,
-    token:
-      "eBTmzUSqRJeS7LUSshs2gL:APA91bFVmh2GGRlS1K0AfoPfbJXB46aWLbO4HyDtrSKz0URW2OudAXqRU0I0quoLoXXwgGaqNiCT8g6o6Htw6llUSVbSR7SDlhH2I7OFbk13XbhZ2cQu8KUqKRPh4XYOmyDZlnynhnzC",
+    tokens,
   };
 
   firebaseAdmin
     .messaging()
-    .send(message)
+    .sendMulticast(message)
     .then((response) => {
       // Response is a message ID string.
       console.log("Successfully sent message:", response);
