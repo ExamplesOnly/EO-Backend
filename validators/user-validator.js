@@ -4,9 +4,9 @@ const User = require("../models").User;
 const UserFollow = require("../models").UserFollow;
 
 exports.follow = [
-  body("uuid", "Invalid Request. 1")
+  body("uuid", "Invalid Request.")
     .exists({ checkNull: true })
-    .withMessage("Invalid Request. 2")
+    .withMessage("Invalid Request.")
     .custom(async (value, { req }) => {
       if (req.body.uuid == req.user.uuid) return Promise.reject();
 
@@ -20,5 +20,14 @@ exports.follow = [
 
       req.followUser = user;
     })
-    .withMessage("Invalid Request. 3"),
+    .withMessage("Invalid Request."),
+];
+
+exports.updateFcmToken = [
+  body("refreshToken", "Invalid Request.")
+    .exists({ checkNull: true })
+    .withMessage("Invalid Request."),
+  body("fcmToken", "Invalid Request.")
+    .exists({ checkNull: true })
+    .withMessage("Invalid Request."),
 ];

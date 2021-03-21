@@ -112,6 +112,14 @@ moduleRouter.get(
   asyncHandler(user.getFollowings)
 );
 
+moduleRouter.post(
+  "/updateFcmToken",
+  asyncHandler(auth.passportJwt),
+  userValidator.updateFcmToken,
+  asyncHandler(helper.verify),
+  asyncHandler(user.updateFcmToken)
+);
+
 module.exports = {
   moduleRouter,
   config,

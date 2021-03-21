@@ -2,9 +2,9 @@ const User = require("../models").User;
 const Video = require("../models").Video;
 const UserCategory = require("../models").UserCategory;
 const Category = require("../models").Category;
-const ExampleBookmark = require("../models").ExampleBookmark;
 const ExampleDemand = require("../models").ExampleDemand;
 const UserFollow = require("../models").UserFollow;
+const UserSession = require("../models").UserSession;
 const { sequelize } = require("../models");
 const { CustomError } = require("../utils");
 const { s3 } = require("../config/media");
@@ -541,6 +541,22 @@ exports.getFollowers = async (req, res) => {
   });
 
   return res.send(userData);
+};
+
+exports.updateFcmToken = async (req, res) => {
+  var sessionData = await UserSession.findOne({
+    where: {
+      refreshToken: req.body.refreshToken,
+    },
+  });
+
+  if (!sessionData) throw new CustomError("Invalid Request", 400);
+
+  var updateSession = sessionData.update({
+    fcmToken: req.body.fcmToken,
+  });
+
+  return res.send({ status: true });
 };
 
 async function deleteFileS3(file) {

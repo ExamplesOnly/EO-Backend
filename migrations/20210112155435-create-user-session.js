@@ -59,6 +59,9 @@ module.exports = {
       refreshToken: {
         type: Sequelize.STRING,
       },
+      fcmToken: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

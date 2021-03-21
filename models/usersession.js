@@ -39,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       isClientMobile: DataTypes.BOOLEAN,
       lastRefreshAt: DataTypes.DATE,
       refreshToken: DataTypes.STRING,
+      fcmToken: DataTypes.STRING,
     },
     {
       sequelize,
