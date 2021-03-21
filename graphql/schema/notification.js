@@ -1,8 +1,9 @@
-const notificationController = require("../../controllers/graphql/notification");
-
-exports.typeDef = `
+module.exports = `
   extend type Query {
     Notifications(limit: Int, offset: Int): [Notification!]!
+  }
+  type Mutation {
+    updateFcmToken(refreshToken: String, fcmToken: String): [Notification!]!
   }
 
   type Notification {
@@ -15,16 +16,3 @@ exports.typeDef = `
     createdAt: String
   }
 `;
-
-exports.resolvers = {
-  Query: {
-    async Notifications(parent, args, context, info) {
-      let notifications = await notificationController.getNotifications(
-        args.limit,
-        args.offset,
-        context.user
-      );
-      return notifications;
-    },
-  },
-};

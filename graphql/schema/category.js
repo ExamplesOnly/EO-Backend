@@ -1,4 +1,4 @@
-exports.typeDef = `
+module.exports = `
   type Category {
     id: Int!
     slug: String!
@@ -6,7 +6,3 @@ exports.typeDef = `
     thumbUrl: String
   }
 `;
-
-exports.resolvers = {
-  Query: {},
-};

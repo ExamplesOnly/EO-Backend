@@ -1,15 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+const { merge } = require("lodash");
 const basename = path.basename(__filename);
 
-const typeDefs = [];
-
-const Query = `
-  type Query {
-    _empty: String
-  }
-`;
-typeDefs.push(Query);
+let resolvers = {};
 
 // import all schema files
 fs.readdirSync(__dirname)
@@ -19,8 +13,13 @@ fs.readdirSync(__dirname)
     );
   })
   .forEach((file) => {
-    const typeDef = require(path.join(__dirname, file));
-    typeDefs.push(typeDef);
+    const schemaResolvers = require(path.join(__dirname, file));
+    resolvers = merge(resolvers, schemaResolvers);
   });
 
-module.exports = typeDefs;
+module.exports = resolvers;
+
+// exports.schema = makeExecutableSchema({
+//   typeDefs: typeDefs,
+//   resolvers: resolvers,
+// });

@@ -1,7 +1,15 @@
-const { schema } = require("./schema");
+const typeDefs = require("./schema");
+const resolvers = require("./resolver");
 const { ApolloServer, gql } = require("apollo-server-express");
 const user = require("../controllers/graphql/user");
 const { getUserFromToken } = require("../controllers/graphql/auth");
+const { makeExecutableSchema } = require("apollo-server");
+
+// make executable schema
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+});
 
 module.exports = new ApolloServer({
   schema,
