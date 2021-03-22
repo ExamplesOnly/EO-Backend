@@ -3,6 +3,7 @@ const NotifyBow = require("../models").NotifyBow;
 const User = require("../models").User;
 const Video = require("../models").Video;
 const UserSession = require("../models").UserSession;
+const ExampleDemand = require("../models").ExampleDemand;
 const { sequelize } = require("../models");
 const firebaseAdmin = require("../config/firebase");
 const notificationTemplate = require("../static/notification");
@@ -25,6 +26,10 @@ exports.bowNotification = async (req, res, next) => {
           id: bow.videoId,
         },
       });
+
+      // If the owner of the video like his own video
+      // then skip notification generation
+      if (bowedVideo.userId == req.user.id) return;
 
       const bowNotfication = await NotifyBow.create(
         {
@@ -73,11 +78,18 @@ exports.bowNotification = async (req, res, next) => {
         where: {
           id: bow.videoId,
         },
+        include: [
+          {
+            model: ExampleDemand,
+          },
+        ],
         attributes: ["videoId", "thumbUrl", "title"],
       });
 
       let payload = {
-        videoTitle: currVideo.title,
+        videoTitle: currVideo.ExampleDemand
+          ? currVideo.ExampleDemand.title
+          : currVideo.title,
         userFullName: req.user.firstName,
         userprofileImage: req.user.profileImage,
         actionType: constants.NOTIFICATION_ACTION_VIDEO,
@@ -133,6 +145,8 @@ function buildNotification(type, payload) {
 }
 
 function pushNotification(data, tokens) {
+  if (tokens.length < 1) return;
+
   var message = {
     data,
     tokens,
