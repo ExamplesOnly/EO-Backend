@@ -87,13 +87,12 @@ exports.bowNotification = async (req, res, next) => {
       // build the notification payload to attach additional data required for UI
       let finalPayload = buildNotification(constants.NOTIFICATION_BOW, payload);
       if (finalPayload) {
+        // get all the sessions of the
         var userSessions = await UserSession.findAll({
           where: {
-            userId: req.user.id,
+            userId: bowedVideo.userId,
           },
         });
-
-        console.log("userSessions", userSessions, req.user.id);
 
         var tokens = [];
         userSessions.forEach((s) => {
@@ -101,8 +100,9 @@ exports.bowNotification = async (req, res, next) => {
             tokens.push(s.fcmToken);
           }
         });
-        console.log("tokens", tokens);
-        pushNotification(finalPayload, tokens);
+
+        // Send notification only if user has atleast one FCM token
+        if (tokens.length > 0) pushNotification(finalPayload, tokens);
       }
     }
     return;
