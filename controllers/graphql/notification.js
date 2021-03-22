@@ -6,9 +6,12 @@ const Video = require("../../models/").Video;
 const notificationTemplate = require("../../static/notification");
 const constants = require("../../utils/constants");
 
-exports.getNotifications = async (limit = 20, offset = 0) => {
+exports.getNotifications = async (limit = 20, offset = 0, user) => {
   try {
     var notifications = await Notification.findAll({
+      where: {
+        notificationForUserId: user.id,
+      },
       include: [{ model: NotifyBow, include: [{ model: User }] }],
       order: [["createdAt", "DESC"]],
       limit: limit,

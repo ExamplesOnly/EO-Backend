@@ -4,6 +4,7 @@ module.exports = {
   Query: {
     async Notifications(parent, { limit, offset }, { user }, info) {
       let notifications = await notificationController.getNotifications(
+        
         limit,
         offset,
         user
