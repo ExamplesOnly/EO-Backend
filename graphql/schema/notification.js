@@ -7,10 +7,10 @@ module.exports = `
   }
 
   type Notification {
-    uuid: String
-    text: String
+    uuid: String!
+    text: String!
     type: String
-    thumb: String!
+    thumb: String
     actionType: String
     actionId: String!
     createdAt: String
