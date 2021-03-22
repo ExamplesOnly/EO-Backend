@@ -1,3 +1,4 @@
+const ExampleDemand = require("../../models").ExampleDemand;
 const Notification = require("../../models/").Notification;
 const NotifyBow = require("../../models/").NotifyBow;
 const User = require("../../models/").User;
@@ -32,11 +33,21 @@ async function transformNotification(data) {
         where: {
           id: data.typeData.videoId,
         },
+        include: [
+          {
+            model: ExampleDemand,
+          },
+        ],
         attributes: ["videoId", "title"],
       });
       var notificationText = notificationTemplate.bow
         .replace(/{{name}}/gm, data.typeData.User.firstName)
-        .replace(/{{video_title}}/gm, videoData.title);
+        .replace(
+          /{{video_title}}/gm,
+          videoData.ExampleDemand
+            ? videoData.ExampleDemand.title
+            : videoData.title
+        );
       let finalPayload = {
         uuid: data.uuid,
         text: notificationText,
