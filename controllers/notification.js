@@ -13,6 +13,7 @@ exports.bowNotification = async (req, res, next) => {
   console.log("IN bowNotification 1");
 
   let { bow, isAdded } = req.notificationData;
+  var bowedVideo;
 
   const t = await sequelize.transaction();
   try {
@@ -21,7 +22,7 @@ exports.bowNotification = async (req, res, next) => {
       /** Video data is needed to extract the
        * corosponding user Id.
        * */
-      const bowedVideo = await Video.findOne({
+      bowedVideo = await Video.findOne({
         where: {
           id: bow.videoId,
         },
