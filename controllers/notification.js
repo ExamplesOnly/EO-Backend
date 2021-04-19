@@ -170,7 +170,7 @@ exports.followNotification = async (req, res, next) => {
       );
       if (finalPayload) {
         // Send notification
-        pushNotification(req.user.id, finalPayload);
+        pushNotification(followData.following.id, finalPayload);
       }
 
       // If user unfollowed, remove the notification
