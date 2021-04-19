@@ -427,7 +427,7 @@ exports.getVideoBookmarks = async (req, res) => {
   res.status(200).send(results);
 };
 
-exports.followUser = async (req, res) => {
+exports.followUser = async (req, res, next) => {
   var follow = await UserFollow.findOrCreate({
     where: {
       followerUuid: req.user.uuid,
@@ -435,10 +435,25 @@ exports.followUser = async (req, res) => {
     },
   });
 
-  return res.status(200).send({ status: true, data: true });
+  // Return the data
+  res.status(200).send({ status: true, data: true });
+
+  // follow[1] will be true on if it created the entry.
+  // If it is a repeating request, follow[1] will be false
+  // and do not pass to notification middleware
+  if (follow[1]) {
+    // notification to be passed to notification middleware
+    req.notificationData = {
+      follow: follow[0],
+      isFollowed: true,
+    };
+    return next();
+  } else {
+    return;
+  }
 };
 
-exports.unfollowUser = async (req, res) => {
+exports.unfollowUser = async (req, res, next) => {
   var follow = await UserFollow.findOne({
     where: {
       followerUuid: req.user.uuid,
@@ -448,10 +463,19 @@ exports.unfollowUser = async (req, res) => {
 
   // unfollow if already following
   if (follow) {
+    // notification to be passed to notification middleware
+    req.notificationData = {
+      follow: follow,
+      isFollowed: false,
+    };
+
     await follow.destroy();
   }
 
-  return res.status(200).send({ status: true, data: true });
+  res.status(200).send({ status: true, data: follow ? true : false });
+
+  if (follow) return next();
+  return;
 };
 
 exports.getFollowings = async (req, res) => {

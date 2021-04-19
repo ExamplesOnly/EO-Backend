@@ -1,17 +1,17 @@
-const Notification = require("../models").Notification;
-const NotifyBow = require("../models").NotifyBow;
-const User = require("../models").User;
-const Video = require("../models").Video;
-const UserSession = require("../models").UserSession;
 const ExampleDemand = require("../models").ExampleDemand;
-const { sequelize } = require("../models");
+const NotifyFollow = require("../models").NotifyFollow;
+const Notification = require("../models").Notification;
+const UserSession = require("../models").UserSession;
+const UserFollow = require("../models").UserFollow;
+const NotifyBow = require("../models").NotifyBow;
+const Video = require("../models").Video;
+const User = require("../models").User;
+const { Sequelize, sequelize } = require("../models");
 const firebaseAdmin = require("../config/firebase");
 const notificationTemplate = require("../static/notification");
 const constants = require("../utils/constants");
 
 exports.bowNotification = async (req, res, next) => {
-  console.log("IN bowNotification 1");
-
   let { bow, isAdded } = req.notificationData;
   var bowedVideo;
 
@@ -49,7 +49,7 @@ exports.bowNotification = async (req, res, next) => {
         { transaction: t }
       );
 
-      // If notification is deleted
+      // If bow is removed, remove the notification as well
     } else {
       const bowNotfication = await NotifyBow.findOne({
         where: {
@@ -100,27 +100,105 @@ exports.bowNotification = async (req, res, next) => {
       // build the notification payload to attach additional data required for UI
       let finalPayload = buildNotification(constants.NOTIFICATION_BOW, payload);
       if (finalPayload) {
-        // get all the sessions of the
-        var userSessions = await UserSession.findAll({
-          where: {
-            userId: bowedVideo.userId,
-          },
-        });
-
-        var tokens = [];
-        userSessions.forEach((s) => {
-          if (typeof s.fcmToken === "string" || s.fcmToken instanceof String) {
-            tokens.push(s.fcmToken);
-          }
-        });
-
-        // Send notification only if user has atleast one FCM token
-        if (tokens.length > 0) pushNotification(finalPayload, tokens);
+        // Send notification
+        pushNotification(bowedVideo.userId, finalPayload);
       }
     }
     return;
   } catch (error) {
-    console.log(error);
+    await t.rollback();
+    return;
+  }
+};
+
+exports.followNotification = async (req, res, next) => {
+  let { follow, isFollowed } = req.notificationData;
+  let followData;
+
+  const t = await sequelize.transaction();
+  try {
+    // If user followed
+    if (isFollowed) {
+      // Extract users data from UserFollow data
+      followData = await UserFollow.findOne({
+        where: {
+          uuid: follow.dataValues.uuid,
+        },
+        include: [
+          {
+            model: User,
+            as: "following",
+          },
+          {
+            model: User,
+            as: "follower",
+          },
+        ],
+      });
+
+      // create the notification entry
+      const followNotfication = await NotifyFollow.create(
+        {
+          followId: follow.dataValues.uuid,
+          followByUserId: follow.dataValues.followerUuid,
+        },
+        { transaction: t }
+      );
+
+      await followNotfication.createNotification(
+        {
+          notificationForUserId: followData.following.id,
+          actionByUserId: followData.follower.dataValues.id,
+        },
+        { transaction: t }
+      );
+
+      // Commit changes to the database
+      await t.commit();
+
+      let payload = {
+        userFullName: req.user.firstName,
+        userprofileImage: req.user.profileImage,
+        actionType: constants.NOTIFICATION_ACTION_PROFILE,
+        actionId: req.user.uuid,
+      };
+
+      // build the notification payload to attach additional data required for UI
+      let finalPayload = buildNotification(
+        constants.NOTIFICATION_FOLLOW,
+        payload
+      );
+      if (finalPayload) {
+        // Send notification
+        pushNotification(req.user.id, finalPayload);
+      }
+
+      // If user unfollowed, remove the notification
+    } else {
+      const followNotfication = await NotifyFollow.findOne({
+        where: {
+          followId: follow.dataValues.uuid,
+        },
+      });
+      if (followNotfication) {
+        await followNotfication.destroy();
+        await Notification.destroy(
+          {
+            where: {
+              typeId: followNotfication.id,
+            },
+          },
+          { transaction: t }
+        );
+      }
+
+      // Commit changes to the database
+      await t.commit();
+    }
+  } catch (e) {
+    console.log("followNotification: rollback");
+
+    console.log(e);
     await t.rollback();
     return;
   }
@@ -132,9 +210,22 @@ function buildNotification(type, payload) {
       var notificationText = notificationTemplate.bowPush
         .replace(/{{name}}/gm, payload.userFullName)
         .replace(/{{video_title}}/gm, payload.videoTitle);
-      let finalPayload = {
+      var finalPayload = {
         notificationText,
         notificationType: constants.NOTIFICATION_BOW,
+        notificationThumb: payload.userprofileImage,
+        actionType: payload.actionType,
+        actionId: payload.actionId,
+      };
+      return finalPayload;
+    case constants.NOTIFICATION_FOLLOW:
+      var notificationText = notificationTemplate.followPush.replace(
+        /{{name}}/gm,
+        payload.userFullName
+      );
+      var finalPayload = {
+        notificationText,
+        notificationType: constants.NOTIFICATION_FOLLOW,
         notificationThumb: payload.userprofileImage,
         actionType: payload.actionType,
         actionId: payload.actionId,
@@ -145,7 +236,24 @@ function buildNotification(type, payload) {
   }
 }
 
-function pushNotification(data, tokens) {
+async function pushNotification(userId, data) {
+  var tokens = [];
+
+  // Get destination user's all sessions to get
+  // FCM tokens of the user
+  var userSessions = await UserSession.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+
+  userSessions.forEach((s) => {
+    if (typeof s.fcmToken === "string" || s.fcmToken instanceof String) {
+      tokens.push(s.fcmToken);
+    }
+  });
+
+  // If no tokens are available, stip push notification process
   if (tokens.length < 1) return;
 
   var message = {

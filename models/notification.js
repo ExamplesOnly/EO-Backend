@@ -7,10 +7,18 @@ const uppercaseFirst = (str) => `${str[0].toUpperCase()}${str.substr(1)}`;
 module.exports = (sequelize, DataTypes) => {
   class Notification extends Model {
     static associate(models) {
+      // Association with bow notification
       Notification.belongsTo(models.NotifyBow, {
         foreignKey: "typeId",
         constraints: false,
       });
+
+      // Association with follow notification
+      Notification.belongsTo(models.NotifyFollow, {
+        foreignKey: "typeId",
+        constraints: false,
+      });
+
       Notification.belongsTo(models.User, {
         foreignKey: "notificationForUserId",
       });
@@ -55,10 +63,17 @@ module.exports = (sequelize, DataTypes) => {
     for (const instance of findResult) {
       if (instance.type === "NotifyBow" && instance.NotifyBow !== undefined) {
         instance.typeData = instance.NotifyBow;
+      } else if (
+        instance.type === "NotifyFollow" &&
+        instance.NotifyFollow !== undefined
+      ) {
+        instance.typeData = instance.NotifyFollow;
       }
       // To prevent mistakes:
       delete instance.NotifyBow;
       delete instance.dataValues.NotifyBow;
+      delete instance.NotifyFollow;
+      delete instance.dataValues.NotifyFollow;
     }
   });
   return Notification;

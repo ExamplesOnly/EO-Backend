@@ -1,6 +1,7 @@
 const ExampleDemand = require("../../models").ExampleDemand;
 const Notification = require("../../models/").Notification;
 const NotifyBow = require("../../models/").NotifyBow;
+const NotifyFollow = require("../../models/").NotifyFollow;
 const User = require("../../models/").User;
 const Video = require("../../models/").Video;
 
@@ -13,7 +14,10 @@ exports.getNotifications = async (limit = 20, offset = 0, user) => {
       where: {
         notificationForUserId: user.id,
       },
-      include: [{ model: NotifyBow, include: [{ model: User }] }],
+      include: [
+        { model: NotifyBow, include: [{ model: User }] },
+        { model: NotifyFollow, include: [{ model: User }] },
+      ],
       order: [["createdAt", "DESC"]],
       limit: limit,
       offset: offset,
@@ -28,6 +32,7 @@ exports.getNotifications = async (limit = 20, offset = 0, user) => {
 async function transformNotification(data) {
   switch (data.type) {
     case "NotifyBow":
+      console.log("NotifyBow", data);
       // Get the associated video of the bow
       let videoData = await Video.findOne({
         where: {
@@ -48,7 +53,7 @@ async function transformNotification(data) {
             ? videoData.ExampleDemand.title
             : videoData.title
         );
-      let finalPayload = {
+      var finalPayload = {
         uuid: data.uuid,
         text: notificationText,
         type: constants.NOTIFICATION_BOW,
@@ -58,7 +63,25 @@ async function transformNotification(data) {
         createdAt: data.createdAt,
       };
       return finalPayload;
+    case "NotifyFollow":
+      // Get the associated "following" user
+      var userData = data.typeData.User;
 
+      var notificationText = notificationTemplate.follow.replace(
+        /{{name}}/gm,
+        userData.firstName
+      );
+      var finalPayload = {
+        uuid: data.uuid,
+        text: notificationText,
+        type: constants.NOTIFICATION_FOLLOW,
+        thumb: userData.profileImage,
+        actionType: constants.NOTIFICATION_ACTION_PROFILE,
+        actionId: userData.uuid,
+        createdAt: data.createdAt,
+      };
+      return finalPayload;
+      break;
     default:
       break;
   }

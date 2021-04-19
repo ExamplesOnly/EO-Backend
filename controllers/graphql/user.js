@@ -4,8 +4,6 @@ const User = require("../../models").User;
 const Video = require("../../models").Video;
 const { Sequelize, sequelize } = require("../../models");
 
-const { VideoController } = require("./video");
-
 exports.userLoader = new DataLoader((userids) => {
   let user = User.findAll({
     where: {

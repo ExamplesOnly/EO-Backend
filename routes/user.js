@@ -6,6 +6,7 @@ const validator = require("../controllers/validator");
 const userValidator = require("../validators/user-validator");
 const helper = require("../controllers/helper");
 const { uploads3 } = require("../config/media");
+const notification = require("../controllers/notification");
 
 const moduleRouter = express.Router();
 
@@ -87,7 +88,8 @@ moduleRouter.post(
   asyncHandler(auth.passportJwt),
   userValidator.follow,
   asyncHandler(helper.verify),
-  asyncHandler(user.followUser)
+  asyncHandler(user.followUser),
+  asyncHandler(notification.followNotification)
 );
 
 moduleRouter.post(
@@ -95,7 +97,8 @@ moduleRouter.post(
   asyncHandler(auth.passportJwt),
   userValidator.follow,
   asyncHandler(helper.verify),
-  asyncHandler(user.unfollowUser)
+  asyncHandler(user.unfollowUser),
+  asyncHandler(notification.followNotification)
 );
 
 moduleRouter.get(
