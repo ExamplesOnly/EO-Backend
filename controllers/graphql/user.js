@@ -31,15 +31,10 @@ exports.getUserById = async (id) => {
 
 exports.getUserByUuid = async (uuid) => {
   try {
-    let user = User.findOne({
+    let user = await User.findOne({
       where: {
         uuid: uuid,
       },
-      include: [
-        {
-          model: Video,
-        },
-      ],
     });
 
     return {

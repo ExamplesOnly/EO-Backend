@@ -99,3 +99,7 @@ exports.isDemandValid = [
     })
     .withMessage("Demand not found."),
 ];
+
+exports.searchAll = [
+  body("query", "Query is required").exists({ checkNull: true }),
+];

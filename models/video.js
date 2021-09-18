@@ -9,8 +9,6 @@ const mediaCdnHost = process.env.AWS_CLOUFRONT_MEDIA_HOST
   ? process.env.AWS_CLOUFRONT_MEDIA_HOST
   : "mediacdn.examplesonly.com";
 
-console.log(process.env.AWS_CLOUFRONT_MEDIA_HOST);
-
 module.exports = (sequelize, DataTypes) => {
   const Video = sequelize.define(
     "Video",

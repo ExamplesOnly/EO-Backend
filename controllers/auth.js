@@ -265,7 +265,7 @@ exports.generateSession = async (req, res, next) => {
     .split(",")[0]
     .trim();
 
-  // Get user geo locatio from IP
+  // Get user geo location from IP
   const geoLocation = geoip.lookup(userIp);
   if (geoLocation) {
     sessionData.clientIP = userIp;

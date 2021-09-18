@@ -1,7 +1,6 @@
 const path = require("path");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
-const nodemailer = require("nodemailer");
 const { generateDynamicLink } = require("../utils");
 const { addHours } = require("date-fns");
 
@@ -55,7 +54,6 @@ const mailConfig = {
     : undefined,
 };
 
-const transporter = nodemailer.createTransport(mailConfig);
 
 exports.awsverification = async (email) => {
   const token = uuidv4();
@@ -113,8 +111,6 @@ exports.awsverification = async (email) => {
   };
 
   let mailSent = await SES.sendEmail(params, (err, data) => {}).promise();
-
-  console.log(mailSent);
 };
 
 exports.sendResetPasswordMail = async (user, token) => {

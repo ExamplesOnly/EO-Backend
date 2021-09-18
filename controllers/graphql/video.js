@@ -168,6 +168,62 @@ exports.getTrendingList = async (limit = 20, offset = 0) => {
   }
 };
 
+/**
+ * This mentod is used to get videos of a specific user
+ *
+ * @param {number} userId The id of the user
+ * @param {number} limit Query limit
+ * @param {number} offset Query offset
+ * @returns List of videos of the specified user
+ */
+exports.getVideoByUser = async (userId, limit = 20, offset = 0) => {
+  try {
+    let videoList = await Video.findAll({
+      where: {
+        id: userId,
+      },
+      include: [
+        {
+          model: ExampleDemand,
+        },
+        {
+          model: VideoMeta,
+          as: "videoMeta",
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+      limit: limit,
+      offset: offset,
+    });
+
+    let videoFeed = videoList.map((v) => {
+      let title = v.ExampleDemand ? v.ExampleDemand.title : v.title;
+      let description = v.ExampleDemand
+        ? v.ExampleDemand.description
+        : v.description
+        ? v.description
+        : "";
+
+      let isDemand = v.ExampleDemand ? true : false;
+
+      return this.transformVideo({
+        ...v.dataValues,
+        title,
+        description,
+        isDemand,
+        url: v.url,
+        thumbUrl: v.thumbUrl,
+        bow: v.videoMeta.bow,
+        view: v.videoMeta.view,
+      });
+    });
+
+    return videoFeed ? videoFeed : null;
+  } catch (err) {
+    return [];
+  }
+};
+
 exports.transformVideo = async (video) => {
   // userController.getUserById.bind(this, video.userId)
   let user = await userController.getUserById(video.userId);
